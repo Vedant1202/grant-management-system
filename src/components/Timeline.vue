@@ -1,0 +1,408 @@
+<template>
+  <v-container>
+    <!-- Page Title -->
+
+    <!-- Add/Edit Timeline Form -->
+    <v-card class="pa-4 mb-4">
+      <v-row align="center" justify="space-between" class="mb-4">
+        <v-col>
+          <h1>Timeline</h1>
+        </v-col>
+        <v-col class="text-right">
+          <v-btn color="primary" outlined @click="toggleTimeline">
+            {{ showTimeline ? 'Hide Timeline' : 'View Timeline' }}
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col :cols="showTimeline ? 8 : 12">
+          <v-form @submit.prevent="addOrUpdateItem">
+            <v-row>
+              <!-- Date Field -->
+              <v-col cols="12" sm="4">
+                <v-menu
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  :persistent="false"
+                  transition="scale-transition"
+                  offset-y
+                  attach="body"
+                >
+                  <template #activator="{ props }">
+                    <v-text-field
+                      v-model="formattedDate"
+                      label="Completion Date"
+                      readonly
+                      v-bind="props"
+                      outlined
+                      dense
+                      required
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="currentItem.date"
+                    :allowed-dates="allowedDates"
+                    @input="handleDateSelect"
+                  ></v-date-picker>
+                </v-menu>
+              </v-col>
+
+              <!-- Description Field -->
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Description"
+                  v-model="currentItem.description"
+                  outlined
+                  dense
+                  required
+                ></v-text-field>
+              </v-col>
+
+              <!-- Responsible Party -->
+              <v-col cols="12" sm="4">
+                <v-text-field
+                  label="Responsible Party"
+                  v-model="currentItem.responsibleParty"
+                  outlined
+                  dense
+                  required
+                ></v-text-field>
+              </v-col>
+
+              <!-- Major Item Checkbox -->
+              <v-col cols="12" sm="4">
+                <v-checkbox v-model="currentItem.isMajor" label="Major Item" dense></v-checkbox>
+              </v-col>
+
+              <!-- Submit Buttons -->
+              <v-col cols="12" sm="12">
+                <v-btn type="submit" color="primary" class="mr-2">
+                  {{ isEditing ? 'Update Item' : 'Add Item' }}
+                </v-btn>
+                <v-btn color="grey" @click="resetForm">Reset</v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+          <v-data-table
+            :headers="headers"
+            :items="timeline"
+            item-value="date"
+            dense
+            class="elevation-1"
+          >
+            <template #item.date="{ item }">
+              <span>{{ formatDate(item.date) }}</span>
+            </template>
+
+            <template #item.isMajor="{ item }">
+              <v-icon :color="item.isMajor ? 'red' : ''">
+                {{ item.isMajor ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+              </v-icon>
+            </template>
+
+            <template #item.actions="{ item }">
+              <!-- Edit Button -->
+              <v-btn icon @click="editItem(item)">
+                <v-icon color="blue">mdi-pencil</v-icon>
+              </v-btn>
+              <!-- Delete Button -->
+              <v-btn icon @click="removeItem(item)">
+                <v-icon color="red">mdi-delete</v-icon>
+              </v-btn>
+              <!-- Mark Complete -->
+              <v-btn icon @click="markComplete(item)">
+                <v-icon color="green">mdi-check</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-col>
+        <!-- Timeline Section -->
+        <v-col v-if="showTimeline" cols="4" class="timeline-section">
+          <v-card class="pa-4">
+            <h3>Timeline</h3>
+            <v-timeline align="start" side="end">
+              <v-timeline-item
+                v-for="item in sortedTimeline"
+                :key="item.date"
+                :dot-color="getDotColor(item)"
+                size="small"
+                class="timeline-item"
+              >
+                <!-- <v-tooltip top>
+                  <template #activator="{ props }">
+                    <span
+                      class="timeline-dot"
+                      v-bind="props"
+                      :style="{ backgroundColor: getDotColor(item) }"
+                    ></span>
+                  </template>
+                  <span>{{ getDotTooltip(item) }}</span>
+                </v-tooltip> -->
+
+                <div :class="['d-flex', item.isMajor ? 'major-item' : '']">
+                  <strong class="me-4">{{ formatTime(item.date) }}</strong>
+                  <div>
+                    <strong>{{ item.description }}</strong>
+                    <div class="text-caption">{{ item.responsibleParty }}</div>
+                  </div>
+                </div>
+              </v-timeline-item>
+            </v-timeline>
+
+            <!-- Legend -->
+            <v-card class="mt-4 legend pa-3">
+              <p class="mb-3"><strong>Legend</strong></p>
+              <ul>
+                <li><span class="dot completed"></span> Completed (Green)</li>
+                <li><span class="dot past-due"></span> Past Due (Red)</li>
+                <li><span class="dot approaching-soon"></span> Approaching Soon (Orange)</li>
+                <li><span class="dot future"></span> Future (Blue)</li>
+              </ul>
+            </v-card>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-container>
+</template>
+
+<script>
+import moment from 'moment'
+
+export default {
+  props: {
+    grantId: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      timeline: [], // List of timeline items
+      headers: [
+        { text: 'Date', value: 'date' },
+        { text: 'Description', value: 'description' },
+        { text: 'Responsible Party', value: 'responsibleParty' },
+        { text: 'Major Item', value: 'isMajor', align: 'center' },
+        { text: 'Actions', value: 'actions', sortable: false },
+      ],
+      currentItem: {
+        date: this.getTomorrowDate(), // Default to tomorrow's date
+        description: '',
+        responsibleParty: '',
+        isMajor: false,
+        completed: false,
+      },
+      isEditing: false,
+      editingIndex: null,
+      menu: false, // Controls date picker menu
+      showTimeline: true, // Controls the visibility of the timeline
+    }
+  },
+  computed: {
+    sortedTimeline() {
+      return [...this.timeline].sort((a, b) => new Date(a.date) - new Date(b.date))
+    },
+    formattedDate() {
+      if (!this.currentItem.date) return 'N/A'
+      return this.formatDate(this.currentItem.date) // Use the formatDate method
+    },
+  },
+  methods: {
+    addOrUpdateItem() {
+      if (this.isEditing) {
+        this.timeline.splice(this.editingIndex, 1, { ...this.currentItem })
+      } else {
+        this.timeline.push({ ...this.currentItem })
+      }
+      this.saveTimeline()
+      this.resetForm()
+    },
+    editItem(item) {
+      this.currentItem = { ...item }
+      this.isEditing = true
+      this.editingIndex = this.timeline.indexOf(item)
+      this.formattedDate = moment(item.date).format('MMMM Do, YYYY')
+    },
+    removeItem(item) {
+      this.timeline = this.timeline.filter((i) => i !== item)
+      this.saveTimeline()
+    },
+    markComplete(item) {
+      item.completed = true
+      this.saveTimeline()
+    },
+    resetForm() {
+      this.currentItem = {
+        date: '',
+        description: '',
+        responsibleParty: '',
+        isMajor: false,
+        completed: false,
+      }
+      this.formattedDate = ''
+      this.isEditing = false
+      this.editingIndex = null
+    },
+
+    getDotColor(item) {
+      const today = new Date()
+      const itemDate = new Date(item.date)
+      if (item.completed) return 'green'
+      if (itemDate < today) return 'red' // Past dates
+      if (itemDate - today < 7 * 24 * 60 * 60 * 1000) return 'orange' // Approaching soon
+      return 'blue' // Future dates
+    },
+    getDotTooltip(item) {
+      if (item.completed) return 'Completed'
+      const today = new Date()
+      const itemDate = new Date(item.date)
+      if (itemDate < today) return 'Past Due'
+      if (itemDate - today < 7 * 24 * 60 * 60 * 1000) return 'Approaching Soon'
+      return 'Future'
+    },
+
+    allowedDates(date) {
+      const today = new Date()
+      const comparingDate = new Date(date) // Ensure input is a Date object
+      return comparingDate >= today // Allow only future dates
+    },
+    loadTimeline() {
+      const savedTimelines = JSON.parse(localStorage.getItem('timelines')) || {}
+      const savedTimeline = savedTimelines[this.grantId] || [] // Load the timeline for the specific grantId
+      this.timeline = savedTimeline.map((item) => ({
+        ...item,
+        date: new Date(item.date), // Convert saved date strings back to Date objects
+      }))
+    },
+    saveTimeline() {
+      const savedTimelines = JSON.parse(localStorage.getItem('timelines')) || {}
+      savedTimelines[this.grantId] = this.timeline.map((item) => ({
+        ...item,
+        date: item.date.toISOString(), // Save date as ISO strings for consistency
+      }))
+      localStorage.setItem('timelines', JSON.stringify(savedTimelines))
+    },
+
+    getTomorrowDate() {
+      const today = new Date()
+      const tomorrow = new Date(today)
+      tomorrow.setDate(today.getDate() + 1) // Increment the date by 1
+      return tomorrow
+    },
+    formatDate(date) {
+      if (!date) return 'N/A'
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    },
+    handleDateSelect(date) {
+      this.currentItem.date = new Date(date) // Ensure it's saved as a Date object
+      this.formattedDate = this.formatDate(this.currentItem.date) // Update the human-readable date
+      this.menu = false // Close the menu after selection
+    },
+
+    formatTime(date) {
+      if (!date) return 'N/A' // Handle empty or invalid dates
+      const parsedDate = new Date(date) // Ensure date is a valid Date object
+      return parsedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    },
+
+    toggleTimeline() {
+      this.showTimeline = !this.showTimeline // Toggle the timeline visibility
+    },
+  },
+  mounted() {
+    this.formattedDate = this.formatDate(this.currentItem.date) // Format tomorrow's date for display
+
+    this.loadTimeline()
+  },
+}
+</script>
+
+<style scoped>
+.v-data-table {
+  margin-top: 20px;
+}
+.v-card {
+  margin-bottom: 20px;
+}
+.v-navigation-drawer {
+  max-width: none; /* Ensure no max width restricts the drawer */
+}
+
+.v-timeline-item div {
+  white-space: normal; /* Allow text wrapping */
+}
+
+/* Timeline Section */
+.timeline-section {
+  border-left: 1px solid #e0e0e0;
+  padding-left: 16px;
+}
+
+/* Major Item Styling */
+.major-item {
+  background-color: #ffebee; /* Grayscale-red background */
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Dot Styling */
+.timeline-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+/* Legend */
+.legend {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+}
+
+.legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legend .dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.legend .dot.completed {
+  background-color: green;
+}
+
+.legend .dot.past-due {
+  background-color: red;
+}
+
+.legend .dot.approaching-soon {
+  background-color: orange;
+}
+
+.legend .dot.future {
+  background-color: blue;
+}
+</style>

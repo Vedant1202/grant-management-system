@@ -1,0 +1,14 @@
+@import './base.css';
+@import '@mdi/font/css/materialdesignicons.min.css';
+
+#app {
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+@media (hover: hover) {
+}
+
+@media (min-width: 1024px) {
+}

@@ -110,6 +110,7 @@
 
 <script>
 import { defaultTasklist } from '@/templates/defaultTasklist'
+import { useTasklistStore } from '@/stores/tasklist'
 
 export default {
   props: {
@@ -121,8 +122,8 @@ export default {
   data() {
     return {
       // Tasklist (Initially Empty)
-      tasklist: [],
-
+      // tasklist: [],
+      defaultTasklist,
       // Headers for the table
       headers: [
         { title: 'Form/File', value: 'formFile' },
@@ -153,6 +154,14 @@ export default {
       selectedTemplate: null, // Selected template
     }
   },
+  computed: {
+    tasklist() {
+      return this.tasklistStore.getTasklist(this.grantId) // Fetch the tasklist for the specific grantId
+    },
+    tasklistStore() {
+      return useTasklistStore() // Access the Pinia store
+    },
+  },
   watch: {
     selectedTemplate(value) {
       console.log('Selected Template Updated:', value)
@@ -160,46 +169,28 @@ export default {
     },
   },
   methods: {
-    // Load tasks for the specific grant
-    loadTasks() {
-      const savedTasks = JSON.parse(localStorage.getItem(this.grantId)) || []
-      this.tasklist = savedTasks
+    loadTasklist() {
+      this.tasklistStore.loadTasklist(this.grantId) // Load the tasklist for the specific grantId
     },
-    // Save tasks for the specific grant
-    saveTasks() {
-      localStorage.setItem(this.grantId, JSON.stringify(this.tasklist))
+    saveTasklist() {
+      this.tasklistStore.saveTasklist(this.grantId, this.tasklist) // Save the tasklist
     },
-    // Apply the selected template
-    applyTemplate() {
-      if (this.selectedTemplate === 'Default Tasklist') {
-        this.tasklist = [...defaultTasklist] // Autofill from imported template
-        this.saveTasks() // Save applied template
-      }
-    },
-    // Add or update a task
     addOrUpdateTask() {
       if (this.isEditing) {
-        // Update task
-        this.tasklist.splice(this.editingIndex, 1, { ...this.currentTask })
+        this.tasklistStore.updateTask(this.grantId, this.editingIndex, { ...this.currentTask })
       } else {
-        // Add new task
-        this.tasklist.push({ ...this.currentTask })
+        this.tasklistStore.addTask(this.grantId, { ...this.currentTask })
       }
-      this.saveTasks() // Save changes
       this.resetForm()
     },
-    // Edit an existing task
     editTask(task) {
       this.currentTask = { ...task }
       this.isEditing = true
       this.editingIndex = this.tasklist.indexOf(task)
     },
-    // Remove a task from the list
-    removeTask(task) {
-      this.tasklist = this.tasklist.filter((t) => t !== task)
-      this.saveTasks() // Save changes
+    removeTask(index) {
+      this.tasklistStore.removeTask(this.grantId, index)
     },
-    // Reset the task form
     resetForm() {
       this.currentTask = {
         formFile: '',
@@ -212,9 +203,26 @@ export default {
       this.isEditing = false
       this.editingIndex = null
     },
+    applyTemplate() {
+      if (this.selectedTemplate === 'Default Tasklist') {
+        const defaultTasklist = this.defaultTasklist // Replace this with the actual default tasklist
+        defaultTasklist.forEach((task) => {
+          this.tasklistStore.addTask(this.grantId, task) // Add each default task
+        })
+      }
+    },
+    // Load tasks for the specific grant
+    loadTasks() {
+      const savedTasks = JSON.parse(localStorage.getItem(this.grantId)) || []
+      this.tasklist = savedTasks
+    },
+    // Save tasks for the specific grant
+    saveTasks() {
+      localStorage.setItem(this.grantId, JSON.stringify(this.tasklist))
+    },
   },
   mounted() {
-    this.loadTasks() // Load tasks when component is mounted
+    this.loadTasklist() // Load the tasklist on component mount
   },
 }
 </script>

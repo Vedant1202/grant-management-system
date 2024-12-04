@@ -169,6 +169,8 @@
 <script>
 import moment from 'moment'
 
+import { useTimelineStore } from '@/stores/timeline'
+
 export default {
   props: {
     grantId: {
@@ -178,7 +180,7 @@ export default {
   },
   data() {
     return {
-      timeline: [], // List of timeline items
+      //   timeline: [], // List of timeline items
       headers: [
         { text: 'Date', value: 'date' },
         { text: 'Description', value: 'description' },
@@ -203,38 +205,83 @@ export default {
     sortedTimeline() {
       return [...this.timeline].sort((a, b) => new Date(a.date) - new Date(b.date))
     },
+    timeline() {
+      return this.timelineStore.getTimeline(this.grantId) // Fetch the timeline for the specific grantId
+    },
     formattedDate() {
       if (!this.currentItem.date) return 'N/A'
       return this.formatDate(this.currentItem.date) // Use the formatDate method
     },
+    timelineStore() {
+      return useTimelineStore() // Access the Pinia store
+    },
   },
   methods: {
+    loadTimeline() {
+      this.timelineStore.loadTimeline(this.grantId) // Load the timeline for the specific grantId
+    },
+    saveTimeline() {
+      this.timelineStore.saveTimeline(this.grantId, this.timeline) // Save the current timeline
+    },
+
     addOrUpdateItem() {
       if (this.isEditing) {
-        this.timeline.splice(this.editingIndex, 1, { ...this.currentItem })
+        this.timelineStore.updateTimelineItem(this.grantId, this.editingIndex, {
+          ...this.currentItem,
+        })
       } else {
-        this.timeline.push({ ...this.currentItem })
+        this.timelineStore.addTimelineItem(this.grantId, { ...this.currentItem })
       }
-      this.saveTimeline()
       this.resetForm()
     },
     editItem(item) {
       this.currentItem = { ...item }
       this.isEditing = true
       this.editingIndex = this.timeline.indexOf(item)
-      this.formattedDate = moment(item.date).format('MMMM Do, YYYY')
+      this.formattedDate = this.formatDate(item.date)
     },
-    removeItem(item) {
-      this.timeline = this.timeline.filter((i) => i !== item)
-      this.saveTimeline()
+    removeItem(index) {
+      this.timelineStore.removeTimelineItem(this.grantId, index)
     },
+    resetForm() {
+      this.currentItem = {
+        date: this.getTomorrowDate(),
+        description: '',
+        responsibleParty: '',
+        isMajor: false,
+        completed: false,
+      }
+      this.formattedDate = ''
+      this.isEditing = false
+      this.editingIndex = null
+    },
+
+    // addOrUpdateItem() {
+    //   if (this.isEditing) {
+    //     this.timeline.splice(this.editingIndex, 1, { ...this.currentItem })
+    //   } else {
+    //     this.timeline.push({ ...this.currentItem })
+    //   }
+    //   this.saveTimeline()
+    //   this.resetForm()
+    // },
+    // editItem(item) {
+    //   this.currentItem = { ...item }
+    //   this.isEditing = true
+    //   this.editingIndex = this.timeline.indexOf(item)
+    //   this.formattedDate = moment(item.date).format('MMMM Do, YYYY')
+    // },
+    // removeItem(item) {
+    //   this.timeline = this.timeline.filter((i) => i !== item)
+    //   this.saveTimeline()
+    // },
     markComplete(item) {
       item.completed = true
       this.saveTimeline()
     },
     resetForm() {
       this.currentItem = {
-        date: '',
+        date: this.getTomorrowDate(),
         description: '',
         responsibleParty: '',
         isMajor: false,

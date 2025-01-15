@@ -3,17 +3,17 @@
     <!-- Page Title -->
     <v-row>
       <v-col>
-        <h1>Dynamic Tasklist</h1>
+        <h1>Tasklist</h1>
       </v-col>
     </v-row>
 
     <!-- Template Selection -->
     <v-card class="pa-4 mb-4">
-      <h3>Tasklist Template</h3>
+      <!-- <h3>Tasklist Template</h3> -->
       <v-select
         v-model="selectedTemplate"
         :items="templateNames"
-        label="Select Template"
+        label="Select an existing Tasklist Template"
         outlined
         dense
         @update:modelValue="applyTemplate"

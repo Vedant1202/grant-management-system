@@ -9,7 +9,8 @@ export const useGrantProposalsStore = defineStore('grantProposals', {
       const newProposal = {
         ...proposal,
         id: Date.now().toString(), // Assign a unique ID
-        status: 'pending', // Default status is "pending"
+        status: 'pending',
+        completionStatus: 'in progress', // Default status is "pending"
         rejectionNote: '', // Default rejection note
       }
       this.proposals.push(newProposal)

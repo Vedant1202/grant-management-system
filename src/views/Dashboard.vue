@@ -24,15 +24,20 @@
           {{ item.proposedTitle || 'Untitled Grant' }}
         </template>
         <template #item.status="{ item }">
+          <v-chip :color="item.status === 'accepted' ? 'success' : 'error'" dark>
+            {{ item.status }}
+          </v-chip>
+        </template>
+        <!-- <template #item.completionStatus="{ item }">
           <span
             :class="{
-              'green--text': item.status === 'Completed',
-              'orange--text': item.status === 'In progress',
+              'green--text': item.completionStatus === 'Completed',
+              'orange--text': item.completionStatus === 'In progress',
             }"
           >
-            {{ item.status }}
+            {{ item.completionStatus }}
           </span>
-        </template>
+        </template> -->
         <template #item.actions="{ item }">
           <v-btn color="primary" @click="viewGrant(item.id)">View</v-btn>
         </template>

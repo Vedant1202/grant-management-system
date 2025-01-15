@@ -6,8 +6,8 @@
     <v-card>
       <v-tabs v-model="tab">
         <v-tab value="overview">Overview</v-tab>
-        <v-tab value="timeline">Timeline</v-tab>
-        <v-tab value="tasklist">Tasklist</v-tab>
+        <v-tab v-if="grant.status === 'accepted'" value="timeline">Timeline</v-tab>
+        <v-tab v-if="grant.status === 'accepted'" value="tasklist">Tasklist</v-tab>
       </v-tabs>
 
       <v-card-text>
@@ -19,7 +19,17 @@
                 <v-row>
                   <v-col cols="12" v-for="(value, key) in grant" :key="key">
                     <strong>{{ formatFieldName(key) }}:</strong>
-                    <span>{{ formatFieldValue(key, value) }}</span>
+                    <template v-if="key === 'status'">
+                      <span
+                        :class="statusClass(value)"
+                        style="font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 5px"
+                      >
+                        {{ formatFieldValue(key, value) }}
+                      </span>
+                    </template>
+                    <template v-else>
+                      <span>{{ formatFieldValue(key, value) }}</span>
+                    </template>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -85,6 +95,14 @@ export default {
         return moment(value).format('MMMM Do, YYYY')
       }
       return value // Return the value as-is for other fields
+    },
+    statusClass(status) {
+      return {
+        'green--text': status === 'accepted',
+        'orange--text': status === 'pending',
+        'red--text': status === 'rejected',
+        'pa-1': true, // Adds consistent padding for the status badge
+      }
     },
   },
 }

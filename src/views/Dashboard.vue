@@ -21,10 +21,10 @@
       <!-- Data Table -->
       <v-data-table :headers="headers" :items="filteredGrants" class="elevation-1" dense>
         <template #item.name="{ item }">
-          {{ item.proposedTitle || 'Untitled Grant' }}
+          {{ item.proposedTitle || item.projectTitle || 'Untitled Grant' }}
         </template>
         <template #item.status="{ item }">
-          <v-chip :color="item.status === 'accepted' ? 'success' : 'error'" dark>
+          <v-chip :color="item.status === 'accepted' ? 'success' : item.status === 'pending' ? 'warning' : 'error'" dark>
             {{ item.status }}
           </v-chip>
         </template>
@@ -67,11 +67,13 @@ export default {
     },
     filteredGrants() {
       const query = this.search.toLowerCase()
-      return this.grants.filter(
-        (grant) =>
-          grant.proposedTitle.toLowerCase().includes(query) || // Search by proposed title
-          (grant.status || '').toLowerCase().includes(query), // Search by status
-      )
+      return this.grants.filter((grant) => {
+        const grantProposalTitle = grant.proposedTitle || grant.projectTitle
+        return (
+          grantProposalTitle.toLowerCase().includes(query) || // Search by proposed title
+          (grant.status || '').toLowerCase().includes(query)
+        ) // Search by status
+      })
     },
   },
   methods: {

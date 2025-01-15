@@ -42,27 +42,27 @@
               <!-- Sponsor Deadline -->
               <v-menu
                 ref="menu"
-                v-model="menu"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 :return-value.sync="formData.sponsorDeadlineDate"
                 transition="scale-transition"
                 offset-y
+                attach
                 min-width="auto"
               >
-                <template #activator="{ on, attrs }">
+                <template #activator="{ props }">
                   <v-text-field
                     v-model="formattedSponsorDeadline"
                     label="Sponsor Deadline (Date)"
+                    v-bind="props"
                     readonly
-                    v-bind="attrs"
-                    v-on="on"
                     required
                   ></v-text-field>
                 </template>
                 <v-date-picker
+                  :allowed-dates="allowedDates"
                   v-model="formData.sponsorDeadlineDate"
-                  @input="updateFormattedDate"
+                  @update:modelValue="updateFormattedDate"
                 ></v-date-picker>
               </v-menu>
               <v-text-field
@@ -285,6 +285,9 @@
 </template>
 
 <script>
+import moment from 'moment'
+import { useGrantProposalsStore } from '@/stores/grantProposals'
+
 export default {
   data() {
     return {
@@ -296,7 +299,7 @@ export default {
         piLastName: '',
         piEmail: '',
         piDivision: '',
-        sponsorDeadlineDate: '',
+        sponsorDeadlineDate: new Date(),
         sponsorDeadlineTime: '',
         proposalType: '',
         fundingAgency: '',
@@ -338,36 +341,63 @@ export default {
         this.formattedSponsorDeadline = ''
       }
     },
+    allowedDates(date) {
+      // Allow only dates after today
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Remove time from comparison
+      return new Date(date) >= today
+    },
     submitForm() {
       console.log('Form Data:', this.formData)
       // Reset the form after submission
-      this.formData = {
-        piFirstName: '',
-        piLastName: '',
-        piEmail: '',
-        piDivision: '',
-        sponsorDeadlineDate: '',
-        sponsorDeadlineTime: '',
-        proposalType: '',
-        fundingAgency: '',
-        isSubaward: null,
-        primeInstitution: '',
-        primeInstitutionContact: '',
-        primeInstitutionContactEmail: '',
-        submissionBy: '',
-        submissionType: '',
-        fundingOpportunity: '',
-        temporaryAppId: '',
-        activityType: [],
-        isClinicalTrial: null,
-        projectStartDate: '',
-        projectEndDate: '',
-        projectTitle: '',
-        keyPersonnel: '',
-        hasSubcontracts: null,
-        additionalRequirements: [],
-        hasConflictOfInterest: null,
+      if (this.$refs.form.validate()) {
+        const store = useGrantProposalsStore()
+
+        // Add the form data to the centralized store
+        store.addProposal({ ...this.formData })
+        this.formData = {
+          piFirstName: '',
+          piLastName: '',
+          piEmail: '',
+          piDivision: '',
+          sponsorDeadlineDate: new Date(),
+          sponsorDeadlineTime: '',
+          proposalType: '',
+          fundingAgency: '',
+          isSubaward: null,
+          primeInstitution: '',
+          primeInstitutionContact: '',
+          primeInstitutionContactEmail: '',
+          submissionBy: '',
+          submissionType: '',
+          fundingOpportunity: '',
+          temporaryAppId: '',
+          activityType: [],
+          isClinicalTrial: null,
+          projectStartDate: '',
+          projectEndDate: '',
+          projectTitle: '',
+          keyPersonnel: '',
+          hasSubcontracts: null,
+          additionalRequirements: [],
+          hasConflictOfInterest: null,
+        }
+        alert('Intent to submit form was submitted successfully!')
+        // Navigate to the "New Grant Proposal Requests" page (optional)
+        this.$router.push('/new-grant-proposal-requests')
       }
+    },
+    allowedDates(date) {
+      // Allow only dates after today
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Remove time from comparison
+      return new Date(date) >= today
+    },
+  },
+  watch: {
+    // Automatically update the formatted date if the date changes externally
+    'formData.sponsorDueDate'(newValue) {
+      this.updateFormattedDate()
     },
   },
 }

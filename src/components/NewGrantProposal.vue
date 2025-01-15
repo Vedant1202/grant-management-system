@@ -7,212 +7,247 @@
         <v-card class="info-section mb-6">
           <v-card-title class="headline primary--text"> Pre-Award Support </v-card-title>
           <v-card-text>
-            <p>
-              For URICA supported proposals, please utilize the
-              <a href="#" class="link">URICA Proposal Intake Form</a> to notify the team of the need
-              for proposal support. URICA greatly appreciates notification as far in advance of
-              submissions as possible in order to provide the best possible service. URICA will not
-              be able to begin work on your proposal support until provided with a proposal intake
-              form submission, which will include the critical information needed to begin providing
-              pre-award research administration support.
-            </p>
-            <p>
-              CERES will be replacing InfoEd on April 24 when the system goes live at Northwestern.
-              The system will be used for proposal submissions (directly to Grants.gov or not),
-              grant and contract administration, award management including award modifications and
-              other post-award changes, and agreements management.
-            </p>
-            <p>
-              Please visit the
-              <a href="#" class="link">CERES Cutover Timeline</a> for proposal submission and change
-              request cutoff dates. Reach out to your research administrator as soon as possible
-              with any questions or concerns.
-            </p>
+            Please complete this form to request Pre-award Proposal Development and ensure timely
+            submission. ALL proposals must be routed through the Grants & Contracts Associate/Grant
+            Manager for your division.
             <v-btn color="primary" class="mt-4" @click="scrollToForm">
               Fill Intent to Submit Form
             </v-btn>
           </v-card-text>
         </v-card>
 
-        <!-- Scroll Button -->
-        <!-- <v-row justify="center">
-      <v-btn color="primary" large @click="scrollToForm"> Go to Intent to Submit Form </v-btn>
-    </v-row> -->
-
+        <!-- Intent to Submit Form -->
         <v-card id="intent-form">
-          <v-card-title>Department of Medicine Intent to Submit Survey</v-card-title>
+          <v-card-title>Department of Medicine Grant Intake Form</v-card-title>
           <v-card-text>
             <v-form ref="form" v-model="isFormValid">
               <!-- PI Information -->
-              <v-text-field
-                v-model="formData.piLastName"
-                label="PI Last Name"
-                required
-              ></v-text-field>
-
               <v-text-field
                 v-model="formData.piFirstName"
                 label="PI First Name"
                 required
               ></v-text-field>
-
-              <v-text-field v-model="formData.x500" label="x500" required></v-text-field>
-
-              <v-text-field v-model="formData.division" label="Division" required></v-text-field>
-
-              <!-- Grant Details -->
               <v-text-field
-                v-model="formData.rfa"
-                label="What RFA/PA or other announcement are you applying to? (Provide link)"
+                v-model="formData.piLastName"
+                label="PI Last Name"
+                required
+              ></v-text-field>
+              <v-text-field v-model="formData.piEmail" label="PI Email" required></v-text-field>
+              <v-text-field
+                v-model="formData.piDivision"
+                label="PI Division Home Unit"
                 required
               ></v-text-field>
 
-              <v-text-field
-                v-model="formData.grantMechanism"
-                label="What is the grant mechanism?"
-                required
-              ></v-text-field>
-
-              <v-radio-group
-                v-model="formData.careerAward"
-                label="Is this a Career Development Award that requires dedicated research time?"
-                :mandatory="true"
-              >
-                <v-radio label="Yes" value="yes"></v-radio>
-                <v-radio label="No" value="no"></v-radio>
-              </v-radio-group>
-
-              <!-- Submission Type -->
-              <v-select
-                v-model="formData.submissionType"
-                :items="['New', 'Resubmission (A1)', 'Renewal', 'Supplement', 'Subcontract']"
-                label="What is the type of submission?"
-                required
-              ></v-select>
-
-              <!-- Sponsor Information -->
-              <v-text-field
-                v-model="formData.sponsor"
-                label="Who is the sponsor?"
-                required
-              ></v-text-field>
-
-              <!-- Sponsor Information -->
-              <!-- <div>
-            <h3>Selected Due Date: {{ formData.sponsorDueDate || 'None' }}</h3>
-          </div> -->
+              <!-- Sponsor Deadline -->
               <v-menu
+                ref="menu"
+                v-model="menu"
                 :close-on-content-click="false"
-                :persistent="false"
+                :nudge-right="40"
+                :return-value.sync="formData.sponsorDeadlineDate"
                 transition="scale-transition"
                 offset-y
-                attach
+                min-width="auto"
               >
-                <template #activator="{ props }">
+                <template #activator="{ on, attrs }">
                   <v-text-field
-                    v-model="formattedSponsorDueDate"
-                    label="What is the sponsor due date?"
+                    v-model="formattedSponsorDeadline"
+                    label="Sponsor Deadline (Date)"
                     readonly
-                    v-bind="props"
+                    v-bind="attrs"
+                    v-on="on"
                     required
                   ></v-text-field>
                 </template>
                 <v-date-picker
-                  v-model="formData.sponsorDueDate"
-                  :allowed-dates="allowedDates"
-                  @input="handleDateInput"
+                  v-model="formData.sponsorDeadlineDate"
+                  @input="updateFormattedDate"
                 ></v-date-picker>
               </v-menu>
-
               <v-text-field
-                v-model="formData.proposedTitle"
-                label="What is the proposed or draft Title?"
+                v-model="formData.sponsorDeadlineTime"
+                label="Sponsor Deadline (Time)"
+                required
+              ></v-text-field>
+
+              <!-- Proposal Details -->
+              <v-select
+                v-model="formData.proposalType"
+                :items="[
+                  'New',
+                  'Continuation',
+                  'Pre-Proposal',
+                  'Renewal',
+                  'Supplemental/Amendment',
+                ]"
+                label="Proposal Type"
+                required
+              ></v-select>
+              <v-text-field
+                v-model="formData.fundingAgency"
+                label="Funding Agency Name"
+                required
               ></v-text-field>
 
               <v-radio-group
-                v-model="formData.continuousSubmission"
-                label="If this is an NIH proposal, are you eligible for Continuous Submission?"
+                v-model="formData.isSubaward"
+                label="Is this a subaward to UIC?"
+                :mandatory="true"
+              >
+                <v-radio label="Yes" value="yes"></v-radio>
+                <v-radio label="No" value="no"></v-radio>
+              </v-radio-group>
+              <v-text-field
+                v-model="formData.primeInstitution"
+                label="Prime Institution Name"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.primeInstitutionContact"
+                label="Prime Institution Contact Name"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.primeInstitutionContactEmail"
+                label="Prime Institution Contact Email"
+              ></v-text-field>
+
+              <v-select
+                v-model="formData.submissionBy"
+                :items="['Central Office', 'Unit']"
+                label="Submission by"
+                required
+              ></v-select>
+              <v-select
+                v-model="formData.submissionType"
+                :items="['NIH Assist', 'Grants.gov', 'ProposalCentral', 'Fastlane', 'Other']"
+                label="Submission Type"
+                required
+              ></v-select>
+              <v-text-field
+                v-model="formData.fundingOpportunity"
+                label="Funding Opportunity Number/Guidelines (URL or PDF)"
+                required
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.temporaryAppId"
+                label="Temporary Application ID (if applicable)"
+              ></v-text-field>
+
+              <!-- Activity Type -->
+              <v-select
+                v-model="formData.activityType"
+                :items="[
+                  'Basic Science Research',
+                  'Clinical Research',
+                  'Dissemination/Implementation Science Research',
+                  'Institutional Training Grant',
+                  'Career Development Grant',
+                  'Sponsored Instruction',
+                  'Other Sponsored Activity',
+                ]"
+                label="Activity Type"
+                required
+                multiple
+              ></v-select>
+
+              <v-radio-group
+                v-model="formData.isClinicalTrial"
+                label="Is this a Clinical Trial?"
+                :mandatory="true"
               >
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
               </v-radio-group>
 
-              <!-- Personnel -->
+              <!-- Project Details -->
+              <v-text-field
+                v-model="formData.projectStartDate"
+                label="Project Start Date"
+                required
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.projectEndDate"
+                label="Project End Date"
+                required
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.projectTitle"
+                label="Project Title"
+                required
+              ></v-text-field>
+
+              <!-- Key Personnel -->
               <v-textarea
-                v-model="formData.knownPersonnel"
-                label="List all known personnel (Co-PIs, Co-Is, Research Staff, etc) and corresponding department involved in this proposal."
+                v-model="formData.keyPersonnel"
+                label="Key Personnel (Names & Emails)"
                 required
               ></v-textarea>
 
-              <!-- Subcontracts -->
+              <!-- Additional Questions -->
               <v-radio-group
-                v-model="formData.outgoingSubcontracts"
-                label="Will your proposal involve any outgoing subcontract(s)?"
-                :mandatory="true"
+                v-model="formData.hasSubcontracts"
+                label="Does this submission involve any subcontracts?"
               >
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
               </v-radio-group>
 
-              <!-- Human and Animal Subjects -->
-              <v-radio-group v-model="formData.humanSubjects" label="Are human subjects involved?">
-                <v-radio label="Yes" value="yes"></v-radio>
-                <v-radio label="No" value="no"></v-radio>
-              </v-radio-group>
-
-              <v-radio-group
-                v-model="formData.animalSubjects"
-                label="Are animals involved?"
-                :mandatory="true"
-              >
-                <v-radio label="Yes" value="yes"></v-radio>
-                <v-radio label="No" value="no"></v-radio>
-              </v-radio-group>
-
-              <!-- Pre-submission Review -->
               <v-select
-                v-model="formData.preSubmissionReview"
+                v-model="formData.additionalRequirements"
                 :items="[
-                  'Thematically aligned UMN colleague(s) within DOM, unpaid',
-                  'Thematically aligned UMN colleague(s) outside DOM, unpaid',
-                  'Thematically aligned external colleagues, unpaid',
-                  'External consultants, paid',
-                  'Co-Investigators, collaborators, and members of immediate research team on this grant',
-                  'Research Mentors',
-                  'None desired',
-                  'Don’t know, I need help',
-                  'Other',
+                  'Human Subjects',
+                  'Animals',
+                  'Recombinant DNA/Infectious Agents',
+                  'Human Embryonic Stem Cells',
+                  'UIC Hospital Clinics/MRI Center',
+                  'COVID-19 Trial',
                 ]"
-                label="Who will provide pre-submission review of your proposal?"
-                required
+                label="Does the project involve any of the following?"
+                multiple
               ></v-select>
-
-              <v-select
-                v-model="formData.reviewContent"
-                :items="['Specific Aims only', 'Entire research proposal', 'Other', 'N/A']"
-                label="For your pre-submission review, what will be reviewed?"
-                required
-              ></v-select>
-
               <v-radio-group
-                v-model="formData.shareApplication"
-                label="Would you be willing to share your complete application with others in the Department of Medicine as a resource?"
+                v-model="formData.hasConflictOfInterest"
+                label="Is there a conflict of interest?"
               >
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
+                <v-radio label="Unsure" value="unsure"></v-radio>
               </v-radio-group>
 
               <!-- Submit Button -->
-              <v-btn :disabled="!isFormValid" color="primary" @click="openConfirmDialog">
-                Submit
-              </v-btn>
+              <v-btn :disabled="!isFormValid" color="primary" @click="openConfirmDialog"
+                >Submit</v-btn
+              >
             </v-form>
           </v-card-text>
         </v-card>
       </v-col>
 
-      <!-- Sticky Useful Links Section -->
+      <!-- Help Notes Section -->
       <v-col cols="4" class="sticky-container mt-6">
+        <v-card class="useful-links help-notes">
+          <v-card-title class="subheading">Help Notes</v-card-title>
+          <v-card-text>
+            <ul>
+              <li>
+                <b>Senior/Key Personnel:</b> Individuals contributing significantly to project
+                development or execution.
+              </li>
+              <li>
+                <b>Other Significant Contributors:</b> Individuals committed to the project without
+                measurable effort.
+              </li>
+              <li>
+                <b>Consultant:</b> Provides professional advice/services for a fee but not as an
+                employee.
+              </li>
+              <li>
+                <b>Consortium Agreement:</b> Formal agreement for collaborative research with
+                separate legal entities.
+              </li>
+            </ul>
+          </v-card-text>
+        </v-card>
         <v-card class="useful-links mt-6">
           <v-card-title class="subheading"> Other Useful Links </v-card-title>
           <v-card-text>
@@ -247,135 +282,122 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-
-  <!-- Success Dialog -->
-  <v-dialog v-model="isSuccessDialogOpen" max-width="400px">
-    <v-card>
-      <v-card-title class="headline">Form Submitted</v-card-title>
-      <v-card-text>Your form has been successfully submitted!</v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" text @click="closeSuccessDialog">Okay</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script>
-import moment from 'moment'
-import { useGrantProposalsStore } from '@/stores/grantProposals'
-
 export default {
   data() {
     return {
       isFormValid: false,
-      isDialogOpen: false, // For the confirmation dialog
-      isSuccessDialogOpen: false, // For the success dialog
-      menu: false, // Controls the date picker menu
+      isDialogOpen: false,
+      menu: false,
       formData: {
-        piLastName: '',
         piFirstName: '',
-        x500: '',
-        division: '',
-        rfa: '',
-        grantMechanism: '',
-        careerAward: null,
+        piLastName: '',
+        piEmail: '',
+        piDivision: '',
+        sponsorDeadlineDate: '',
+        sponsorDeadlineTime: '',
+        proposalType: '',
+        fundingAgency: '',
+        isSubaward: null,
+        primeInstitution: '',
+        primeInstitutionContact: '',
+        primeInstitutionContactEmail: '',
+        submissionBy: '',
         submissionType: '',
-        sponsor: '',
-        sponsorDueDate: null, // Updated to handle date input
-        proposedTitle: '',
-        continuousSubmission: null,
-        knownPersonnel: '',
-        outgoingSubcontracts: null,
-        humanSubjects: null,
-        animalSubjects: null,
-        preSubmissionReview: '',
-        reviewContent: '',
-        shareApplication: null,
-        minDate: new Date().toISOString().substr(0, 10), // Set minimum date to today
+        fundingOpportunity: '',
+        temporaryAppId: '',
+        activityType: [],
+        isClinicalTrial: null,
+        projectStartDate: '',
+        projectEndDate: '',
+        projectTitle: '',
+        keyPersonnel: '',
+        hasSubcontracts: null,
+        additionalRequirements: [],
+        hasConflictOfInterest: null,
       },
-      formattedSponsorDueDate: '', // Stores the human-readable date
+      formattedSponsorDeadline: '',
     }
   },
   methods: {
-    crollToForm() {
-      const formElement = document.getElementById('intent-form')
-      if (formElement) {
-        formElement.scrollIntoView({ behavior: 'smooth' })
-      }
-    },
-
-    submitForm() {
-      if (this.$refs.form.validate()) {
-        const store = useGrantProposalsStore()
-
-        // Add the form data to the centralized store
-        store.addProposal({ ...this.formData })
-
-        console.log('Form Submitted:', this.formData)
-
-        // Reset the form after submission
-        this.formData = {
-          piLastName: '',
-          piFirstName: '',
-          x500: '',
-          division: '',
-          rfa: '',
-          grantMechanism: '',
-          careerAward: null,
-          submissionType: '',
-          sponsor: '',
-          sponsorDueDate: '',
-          proposedTitle: '',
-          continuousSubmission: null,
-          knownPersonnel: '',
-          outgoingSubcontracts: null,
-          humanSubjects: null,
-          animalSubjects: null,
-          preSubmissionReview: '',
-          reviewContent: '',
-          shareApplication: null,
-        }
-
-        // Navigate to the "New Grant Proposal Requests" page (optional)
-        this.$router.push('/new-grant-proposal-requests')
-      }
-    },
     openConfirmDialog() {
       this.isDialogOpen = true
     },
     closeDialog() {
       this.isDialogOpen = false
     },
-    closeSuccessDialog() {
-      this.isSuccessDialogOpen = false
-    },
-    allowedDates(date) {
-      // Allow only dates after today
-      const today = new Date()
-      today.setHours(0, 0, 0, 0) // Remove time from comparison
-      return new Date(date) >= today
-    },
     updateFormattedDate() {
-      if (this.formData.sponsorDueDate) {
-        this.formattedSponsorDueDate = moment(this.formData.sponsorDueDate).format('MMMM Do, YYYY')
+      if (this.formData.sponsorDeadlineDate) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' }
+        this.formattedSponsorDeadline = new Date(
+          this.formData.sponsorDeadlineDate,
+        ).toLocaleDateString('en-US', options)
       } else {
-        this.formattedSponsorDueDate = ''
+        this.formattedSponsorDeadline = ''
       }
     },
-    handleDateInput(date) {
-      this.formData.sponsorDueDate = date
-      this.updateFormattedDate() // Format the selected date
-      // this.
-    },
-  },
-  watch: {
-    // Automatically update the formatted date if the date changes externally
-    'formData.sponsorDueDate'(newValue) {
-      this.updateFormattedDate()
+    submitForm() {
+      console.log('Form Data:', this.formData)
+      // Reset the form after submission
+      this.formData = {
+        piFirstName: '',
+        piLastName: '',
+        piEmail: '',
+        piDivision: '',
+        sponsorDeadlineDate: '',
+        sponsorDeadlineTime: '',
+        proposalType: '',
+        fundingAgency: '',
+        isSubaward: null,
+        primeInstitution: '',
+        primeInstitutionContact: '',
+        primeInstitutionContactEmail: '',
+        submissionBy: '',
+        submissionType: '',
+        fundingOpportunity: '',
+        temporaryAppId: '',
+        activityType: [],
+        isClinicalTrial: null,
+        projectStartDate: '',
+        projectEndDate: '',
+        projectTitle: '',
+        keyPersonnel: '',
+        hasSubcontracts: null,
+        additionalRequirements: [],
+        hasConflictOfInterest: null,
+      }
     },
   },
 }
 </script>
+
+<style scoped>
+.v-card {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.sticky-container {
+  position: sticky;
+  top: 20px;
+}
+
+.help-notes ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.help-notes li {
+  margin-bottom: 10px;
+}
+
+.help-notes li b {
+  color: #d50032; /* Highlighted text */
+}
+</style>
 
 <style scoped>
 .v-card {

@@ -34,5 +34,9 @@ export const useTasklistStore = defineStore('tasklist', {
       tasklist.splice(index, 1) // Remove the task
       this.saveTasklist(grantId, tasklist) // Save the updated tasklist
     },
+    clearTasklist(grantId) {
+      this.tasklists[grantId] = [] // Reset the tasklist for the specified grantId
+      localStorage.setItem('tasklists', JSON.stringify(this.tasklists)) // Save the updated tasklists to localStorage
+    },
   },
 })

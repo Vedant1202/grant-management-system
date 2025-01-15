@@ -2,6 +2,10 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>{{ 'Grant Management System' }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn text>
+        {{ user.email }}
+      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer app permanent>
@@ -13,35 +17,14 @@
         </v-list-item>
         <v-divider></v-divider>
 
-        <!-- Dashboard Navigation -->
-        <v-list-item :to="isAdmin ? '/admin-dashboard' : '/dashboard'">
+        <!-- Dynamic Sidebar Items -->
+        <v-list-item v-for="item in allowedSidebarItems" :key="item.to" :to="item.to">
           <v-list-item-icon>
-            <v-icon class="uic-blue--text">mdi-view-dashboard</v-icon>
+            <v-icon :class="'uic-blue--text'">{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title class="uic-blue--text">Dashboard</v-list-item-title>
+            <v-list-item-title class="uic-blue--text">{{ item.title }}</v-list-item-title>
           </v-list-item-content>
-        </v-list-item>
-
-        <!-- Dynamic Navigation -->
-        <v-list-item :to="isAdmin ? '/new-grant-proposal-requests' : '/new-grant-proposal'">
-          <v-list-item-icon>
-            <v-icon :class="isAdmin ? 'uic-blue--text' : 'uic-blue--text'">
-              {{ isAdmin ? 'mdi-file-check' : 'mdi-file-document-outline' }}
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title class="uic-blue--text">
-              {{ isAdmin ? 'New Grant Proposal Requests' : 'Create New' }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-spacer></v-spacer>
-
-        <!-- Toggle Admin View -->
-        <v-list-item>
-          <v-switch v-model="isAdmin" label="Admin View" color="primary"></v-switch>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -52,24 +35,12 @@
   </v-app>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isAdmin: false, // Toggle for admin view
-    }
-  },
-  watch: {
-    isAdmin(newValue) {
-      // Redirect to the appropriate dashboard
-      if (newValue) {
-        this.$router.push('/admin-dashboard')
-      } else {
-        this.$router.push('/dashboard')
-      }
-    },
-  },
-}
+<script setup>
+import { useUserStore } from './stores/user'
+
+const userStore = useUserStore()
+const user = userStore.user
+const allowedSidebarItems = userStore.allowedSidebarItems
 </script>
 
 <style scoped>

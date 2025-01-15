@@ -14,6 +14,20 @@
           </v-btn>
         </v-col>
       </v-row>
+      <v-row class="mb-4">
+        <v-col cols="12" sm="6">
+          <v-select
+            v-model="selectedTemplate"
+            :items="templateOptions"
+            label="Select Template"
+            outlined
+            dense
+          ></v-select>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-btn color="primary" outlined @click="applyTemplate"> Apply Template </v-btn>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col :cols="showTimeline ? 8 : 12">
           <v-form @submit.prevent="addOrUpdateItem">
@@ -90,29 +104,53 @@
             dense
             class="elevation-1"
           >
-            <template #item.date="{ item }">
-              <span>{{ formatDate(item.date) }}</span>
-            </template>
+            <!-- Custom styling for rows -->
+            <template v-slot:body="{ items }">
+              <tr
+                v-for="item in items"
+                :key="item.date"
+                :class="{ 'completed-row': item.completed }"
+              >
+                <!-- Date Column -->
+                <td>
+                  <span>{{ formatDate(item.date) }}</span>
+                </td>
 
-            <template #item.isMajor="{ item }">
-              <v-icon :color="item.isMajor ? 'red' : ''">
-                {{ item.isMajor ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
-              </v-icon>
-            </template>
+                <!-- Description Column -->
+                <td :class="{ 'strikethrough-text': item.completed }">
+                  {{ item.description }}
+                </td>
 
-            <template #item.actions="{ item }">
-              <!-- Edit Button -->
-              <v-btn icon @click="editItem(item)">
-                <v-icon color="blue">mdi-pencil</v-icon>
-              </v-btn>
-              <!-- Delete Button -->
-              <v-btn icon @click="removeItem(item)">
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
-              <!-- Mark Complete -->
-              <v-btn icon @click="markComplete(item)">
-                <v-icon color="green">mdi-check</v-icon>
-              </v-btn>
+                <!-- Responsible Party Column -->
+                <td>
+                  {{ item.responsibleParty }}
+                </td>
+
+                <!-- Major Item Icon Column -->
+                <td>
+                  <v-icon :color="item.isMajor ? 'red' : ''">
+                    {{ item.isMajor ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                  </v-icon>
+                </td>
+
+                <!-- Actions Column -->
+                <td>
+                  <!-- Edit Button -->
+                  <v-btn icon @click="editItem(item)">
+                    <v-icon color="blue">mdi-pencil</v-icon>
+                  </v-btn>
+                  <!-- Delete Button -->
+                  <v-btn icon @click="removeItem(item)">
+                    <v-icon color="red">mdi-delete</v-icon>
+                  </v-btn>
+                  <!-- Toggle Complete/Incomplete Button -->
+                  <v-btn icon @click="markComplete(item)">
+                    <v-icon :color="item.completed ? 'orange' : 'green'">
+                      {{ item.completed ? 'mdi-undo' : 'mdi-check' }}
+                    </v-icon>
+                  </v-btn>
+                </td>
+              </tr>
             </template>
           </v-data-table>
         </v-col>
@@ -170,6 +208,7 @@
 import moment from 'moment'
 
 import { useTimelineStore } from '@/stores/timeline'
+import { useGrantProposalsStore } from '@/stores/grantProposals'
 
 export default {
   props: {
@@ -182,11 +221,11 @@ export default {
     return {
       //   timeline: [], // List of timeline items
       headers: [
-        { text: 'Date', value: 'date' },
-        { text: 'Description', value: 'description' },
-        { text: 'Responsible Party', value: 'responsibleParty' },
-        { text: 'Major Item', value: 'isMajor', align: 'center' },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { title: 'Date', value: 'date' },
+        { title: 'Description', value: 'description' },
+        { title: 'Responsible Party', value: 'responsibleParty' },
+        { title: 'Major Item', value: 'isMajor', align: 'center' },
+        { title: 'Actions', value: 'actions', sortable: false },
       ],
       currentItem: {
         date: this.getTomorrowDate(), // Default to tomorrow's date
@@ -195,6 +234,8 @@ export default {
         isMajor: false,
         completed: false,
       },
+      templateOptions: ['DOM Default Timeline'], // Add template names
+      selectedTemplate: null,
       isEditing: false,
       editingIndex: null,
       menu: false, // Controls date picker menu
@@ -215,8 +256,122 @@ export default {
     timelineStore() {
       return useTimelineStore() // Access the Pinia store
     },
+    grantProposalsStore() {
+      return useGrantProposalsStore() // Access the grant proposals store
+    },
+    sponsorDueDate() {
+      const proposal = this.grantProposalsStore.proposals.find((p) => p.id === this.grantId)
+      return proposal ? moment(proposal.sponsorDueDate) : null // Parse sponsorDueDate as a moment object
+    },
   },
   methods: {
+    applyTemplate() {
+      if (!this.selectedTemplate) {
+        alert('Please select a template.')
+        return
+      }
+
+      const sponsorDate = this.sponsorDueDate // Ensure this is a Date object
+      if (!sponsorDate) {
+        alert('Sponsor due date not found for the current grant.')
+        return
+      }
+
+      this.loadTemplateData(this.selectedTemplate).then((templateData) => {
+        const newItems = templateData.map((item) => {
+          const calculatedDate = this.calculateDueDate(item.Date, sponsorDate)
+          return {
+            date: calculatedDate,
+            description: item.Description,
+            responsibleParty: item['Responsible Party'],
+            isMajor: item['Major Item'] || false,
+            completed: false,
+          }
+        })
+
+        // Append new items to the store's timeline for this grant
+        newItems.forEach((item) => {
+          this.timelineStore.addTimelineItem(this.grantId, item)
+        })
+      })
+    },
+    calculateDueDate(dateDescription, sponsorDate) {
+      const matches = dateDescription.match(/(\d+)\s+business days before sponsor deadline/)
+      if (!matches) return null
+
+      let daysToSubtract = parseInt(matches[1], 10)
+      let currentDate = new Date(sponsorDate) // Start from the sponsor date
+
+      // Subtract business days
+      while (daysToSubtract > 0) {
+        currentDate.setDate(currentDate.getDate() - 1) // Move one day back
+        const dayOfWeek = currentDate.getDay()
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          // Only decrement on weekdays (Monday-Friday)
+          daysToSubtract--
+        }
+      }
+
+      return currentDate
+    },
+    loadTemplateData(templateName) {
+      return new Promise((resolve) => {
+        // Template-specific logic (currently only one template is available)
+        if (templateName === 'DOM Default Timeline') {
+          const templateData = [
+            {
+              Date: '5 business days before sponsor deadline',
+              Description: 'NIH Sponsor deadline',
+              'Responsible Party': 'OSP',
+            },
+            {
+              Date: '7 business days before sponsor deadline',
+              Description: 'UIC OSP deadline',
+              'Responsible Party': 'Research Admin',
+            },
+            {
+              Date: '7 business days before sponsor deadline',
+              Description: 'Final review of submission in ASSIST',
+              'Responsible Party': 'PI',
+            },
+            {
+              Date: '7 business days before sponsor deadline',
+              Description: 'All documents uploaded in ASSIST',
+              'Responsible Party': 'Research Admin',
+            },
+            {
+              Date: '15 business days before sponsor deadline',
+              Description: 'EPAF routed',
+              'Responsible Party': 'Research Admin',
+            },
+            {
+              Date: '15 business days before sponsor deadline',
+              Description: 'FINAL Budget',
+              'Responsible Party': 'Research Admin',
+            },
+            {
+              Date: '15 business days before sponsor deadline',
+              Description: 'ALL FINAL subaward documents due to UIC',
+              'Responsible Party': 'Subawardee (if subaward indicated on Intent to submit form)',
+            },
+            {
+              Date: '25 business days before sponsor deadline',
+              Description: 'Subaward first budget draft Internal deadline',
+              'Responsible Party': 'Subawardee (if subaward indicated on Intent to submit form)',
+            },
+            {
+              Date: '30 business days before sponsor deadline',
+              Description: 'UIC Subrecipient request email',
+              'Responsible Party':
+                'Research Admin (if subaward indicated on Intent to submit form)',
+            },
+          ]
+          resolve(templateData)
+        } else {
+          resolve([]) // Fallback for unknown templates
+        }
+      })
+    },
     loadTimeline() {
       this.timelineStore.loadTimeline(this.grantId) // Load the timeline for the specific grantId
     },
@@ -276,8 +431,8 @@ export default {
     //   this.saveTimeline()
     // },
     markComplete(item) {
-      item.completed = true
-      this.saveTimeline()
+      item.completed = !item.completed // Toggle the completion status
+      this.saveTimeline() // Save the updated timeline to the store
     },
     resetForm() {
       this.currentItem = {
@@ -451,5 +606,14 @@ export default {
 
 .legend .dot.future {
   background-color: blue;
+}
+
+.completed-row {
+  background-color: #e0e0e0; /* Grey background for completed rows */
+}
+
+.strikethrough-text {
+  text-decoration: line-through; /* Strikethrough text for completed items */
+  color: #6c757d; /* Muted text color */
 }
 </style>

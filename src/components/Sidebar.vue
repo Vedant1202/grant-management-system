@@ -40,6 +40,15 @@
         </v-list-item-content>
       </v-list-item>
 
+      <v-list-item to="/user-management">
+        <v-list-item-icon>
+          <v-icon>mdi-user-outline</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>User Management</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
       <!-- Placeholder for Other Items -->
       <v-list-item class="sidebar-item">
         <v-list-item-content>

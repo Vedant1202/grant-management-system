@@ -16,7 +16,7 @@
         label="Select Template"
         outlined
         dense
-        @change="applyTemplate"
+        @update:modelValue="applyTemplate"
       ></v-select>
     </v-card>
 
@@ -24,7 +24,7 @@
     <v-card class="pa-4 mb-4">
       <h3>{{ isEditing ? 'Edit Task' : 'Add New Task' }}</h3>
       <v-form @submit.prevent="addOrUpdateTask">
-        <v-row>
+        <!-- <v-row>
           <v-col cols="12" sm="4">
             <v-text-field
               label="Form/File"
@@ -82,6 +82,23 @@
             </v-btn>
             <v-btn color="grey" @click="resetForm">Reset</v-btn>
           </v-col>
+        </v-row> -->
+        <v-row>
+          <v-col v-for="header in headers" :key="header.value" cols="12" sm="4">
+            <v-text-field
+              :label="header.title"
+              v-model="currentTask[header.value]"
+              outlined
+              dense
+              :required="true"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="4">
+            <v-btn type="submit" color="primary" class="mr-2">
+              {{ isEditing ? 'Update Task' : 'Add Task' }}
+            </v-btn>
+            <v-btn color="grey" @click="resetForm">Reset</v-btn>
+          </v-col>
         </v-row>
       </v-form>
     </v-card>
@@ -100,7 +117,7 @@
           <v-icon color="blue">mdi-pencil</v-icon>
         </v-btn>
         <!-- Delete Button -->
-        <v-btn icon @click="removeTask(item)">
+        <v-btn icon @click="removeTask(tasklist.indexOf(item))">
           <v-icon color="red">mdi-delete</v-icon>
         </v-btn>
       </template>
@@ -110,6 +127,13 @@
 
 <script>
 import { defaultTasklist } from '@/templates/defaultTasklist'
+import { Tasklist_NIH_R } from '@/templates/Tasklist_NIH_R'
+import { Tasklist_NIH_K } from '@/templates/Tasklist_NIH_K'
+import { Tasklist_NIH_T } from '@/templates/Tasklist_NIH_T'
+import { Tasklist_NIH_F } from '@/templates/Tasklist_NIH_F'
+import { Tasklist_DOD } from '@/templates/Tasklist_DOD'
+import { Tasklist_HRSA } from '@/templates/Tasklist_HRSA'
+
 import { useTasklistStore } from '@/stores/tasklist'
 
 export default {
@@ -126,13 +150,13 @@ export default {
       defaultTasklist,
       // Headers for the table
       headers: [
-        { title: 'Form/File', value: 'formFile' },
-        { title: 'Section', value: 'section' },
-        { title: 'Component', value: 'component' },
-        { title: 'Person Responsible', value: 'personResponsible' },
-        { title: 'Status/Comments', value: 'status' },
-        { title: 'Final File Location', value: 'finalFileLocation' },
-        { title: 'Actions', value: 'actions', sortable: false },
+        // { title: 'Form/File', value: 'formFile' },
+        // { title: 'Section', value: 'section' },
+        // { title: 'Component', value: 'component' },
+        // { title: 'Person Responsible', value: 'personResponsible' },
+        // { title: 'Status/Comments', value: 'status' },
+        // { title: 'Final File Location', value: 'finalFileLocation' },
+        // { title: 'Actions', value: 'actions', sortable: false },
       ],
 
       // Current Task (for adding/editing)
@@ -149,7 +173,15 @@ export default {
       editingIndex: null, // Track index of task being edited
 
       // Predefined template names
-      templateNames: ['Default Tasklist'],
+      templateNames: [
+        'Default Tasklist',
+        'NIH R Tasklist',
+        'NIH K Tasklist',
+        'NIH T Tasklist',
+        'NIH F Tasklist',
+        'DOD Tasklist',
+        'HRSA Tasklist',
+      ],
 
       selectedTemplate: null, // Selected template
     }
@@ -204,13 +236,58 @@ export default {
       this.editingIndex = null
     },
     applyTemplate() {
-      if (this.selectedTemplate === 'Default Tasklist') {
-        const defaultTasklist = this.defaultTasklist // Replace this with the actual default tasklist
-        defaultTasklist.forEach((task) => {
-          this.tasklistStore.addTask(this.grantId, task) // Add each default task
-        })
+      // Clear the current tasklist
+      this.tasklistStore.clearTasklist(this.grantId)
+
+      // Determine the selected tasklist
+      let selectedTasklist = []
+      switch (this.selectedTemplate) {
+        case 'Default Tasklist':
+          selectedTasklist = this.defaultTasklist
+          break
+        case 'NIH R Tasklist':
+          selectedTasklist = Tasklist_NIH_R
+          break
+        case 'NIH K Tasklist':
+          selectedTasklist = Tasklist_NIH_K
+          break
+        case 'NIH T Tasklist':
+          selectedTasklist = Tasklist_NIH_T
+          break
+        case 'NIH F Tasklist':
+          selectedTasklist = Tasklist_NIH_F
+          break
+        case 'DOD Tasklist':
+          selectedTasklist = Tasklist_DOD
+          break
+        case 'HRSA Tasklist':
+          selectedTasklist = Tasklist_HRSA
+          break
+        default:
+          console.error('Unknown template selected:', this.selectedTemplate)
+          return
       }
+
+      // Dynamically update the headers based on the selected tasklist
+      if (selectedTasklist.length > 0) {
+        this.headers = Object.keys(selectedTasklist[0]).map((key) => ({
+          title: key.replace(/([A-Z])/g, ' $1').trim(), // Format key into a readable title
+          value: key,
+        }))
+      }
+
+      this.headers.push({
+        title: 'Actions',
+        value: 'actions',
+        sortable: false,
+      })
+
+      // Add each task from the selected template to the store
+      selectedTasklist.forEach((task) => {
+        this.tasklistStore.addTask(this.grantId, task)
+      })
     },
+
     // Load tasks for the specific grant
     loadTasks() {
       const savedTasks = JSON.parse(localStorage.getItem(this.grantId)) || []

@@ -55,7 +55,8 @@ export default {
   },
   methods: {
     viewProposal(proposal) {
-      this.$router.push({ name: 'ProposalDetail', params: { id: proposal.id } })
+      this.$router.push({ name: 'GrantView', params: { id: proposal.id } })
+      // this.$router.push({ name: 'ProposalDetail', params: { id: proposal.id } })
     },
   },
 }

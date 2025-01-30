@@ -35,7 +35,7 @@
     </v-navigation-drawer>
 
     <!-- Notification Sidebar -->
-    <v-navigation-drawer v-model="notificationDrawer" app right temporary width="400">
+    <v-navigation-drawer v-model="notificationDrawer" app location="right" temporary width="400">
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -49,28 +49,33 @@
           v-for="notification in notificationStore.getNotifications('all')"
           :key="notification.id"
           class="notification-card"
+          :class="{ unread: notification.state === 'unread' }"
+          :to="notification.link"
+          router
+          @click="markAsRead(notification.id)"
         >
           <v-list-item-content>
             <div class="notification-header">
               <v-list-item-title class="notification-title">
                 {{ notification.title }}
               </v-list-item-title>
-              <v-btn icon small class="close-btn" @click="clearNotification(notification.id)">
+              <v-btn
+                icon
+                small
+                variant="text"
+                class="close-btn"
+                @click.stop="clearNotification(notification.id)"
+              >
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </div>
             <v-list-item-subtitle class="notification-message">
               {{ notification.message }}
             </v-list-item-subtitle>
-            <v-btn
-              text
-              class="view-btn"
-              :to="notification.link"
-              @click="markAsRead(notification.id)"
-            >
-              View
-            </v-btn>
             <span class="timestamp">{{ timeAgo(notification.createdAt) }}</span>
+
+            <!-- Unread Marker -->
+            <span v-if="notification.state === 'unread'" class="unread-marker"></span>
           </v-list-item-content>
         </v-list-item>
 
@@ -173,7 +178,21 @@ const timeAgo = (date) => {
   border-radius: 8px;
   margin-bottom: 10px;
   position: relative;
-  background-color: #fff;
+  background-color: #f9f9f9; /* Default background color */
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+}
+
+.notification-card.unread {
+  background-color: #e8f4ff; /* Light blue for unread notifications */
+}
+
+.notification-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .notification-header {
@@ -203,16 +222,22 @@ const timeAgo = (date) => {
   font-size: 0.9rem;
 }
 
-.view-btn {
-  margin-top: 5px;
-  color: #003da5; /* UIC Blue */
-  font-weight: 600;
-}
-
 .timestamp {
   display: block;
   margin-top: 5px;
   font-size: 0.8rem;
   color: #999;
+}
+
+/* Unread Marker */
+.unread-marker {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #d50032; /* UIC Red */
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 </style>

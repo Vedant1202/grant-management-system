@@ -79,7 +79,7 @@ export default {
       return this.grants.filter((grant) => {
         const grantProposalTitle = grant.proposedTitle || grant.projectTitle
         return (
-          grantProposalTitle.toLowerCase().includes(query) || // Search by proposed title
+          (grantProposalTitle || '').toLowerCase().includes(query) || // Search by proposed title
           (grant.status || '').toLowerCase().includes(query)
         ) // Search by status
       })

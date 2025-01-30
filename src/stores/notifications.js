@@ -12,6 +12,14 @@ export const useNotificationStore = defineStore('notificationStore', {
         state: 'unread', // 'read' or 'unread'
         createdAt: new Date().toISOString(),
       },
+      {
+        id: 2,
+        title: 'Proposal Accepted',
+        message: 'unread Your grant proposal has been approved.',
+        link: '/grants/123',
+        state: 'read', // 'read' or 'unread'
+        createdAt: new Date().toISOString(),
+      },
     ],
   }),
   actions: {

@@ -24,7 +24,16 @@
           {{ item.proposedTitle || item.projectTitle || 'Untitled Grant' }}
         </template>
         <template #item.status="{ item }">
-          <v-chip :color="item.status === 'accepted' ? 'success' : item.status === 'pending' ? 'warning' : 'error'" dark>
+          <v-chip
+            :color="
+              item.status === 'accepted'
+                ? 'success'
+                : item.status === 'pending'
+                  ? 'warning'
+                  : 'error'
+            "
+            dark
+          >
             {{ item.status }}
           </v-chip>
         </template>

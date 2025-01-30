@@ -10,9 +10,9 @@
             Please complete this form to request Pre-award Proposal Development and ensure timely
             submission. ALL proposals must be routed through the Grants & Contracts Associate/Grant
             Manager for your division.
-            <v-btn color="primary" class="mt-4" @click="scrollToForm">
+            <!-- <v-btn color="primary" class="mt-4" @click="scrollToForm">
               Fill Intent to Submit Form
-            </v-btn>
+            </v-btn> -->
           </v-card-text>
         </v-card>
 
@@ -33,11 +33,32 @@
                 required
               ></v-text-field>
               <v-text-field v-model="formData.piEmail" label="PI Email" required></v-text-field>
-              <v-text-field
+              <v-select
                 v-model="formData.piDivision"
+                :items="[
+                  { text: 'Cardiology (586003)', value: '586003' },
+                  { text: 'GI/Hepatology (586004)', value: '586004' },
+                  { text: 'AIM (586006)', value: '586006' },
+                  { text: 'Hem/Onc (586008)', value: '586008' },
+                  { text: 'Infectious Diseases (586009)', value: '586009' },
+                  { text: 'Pulmonary (586009)', value: '586009' },
+                  { text: 'Nephrology (586010)', value: '586010' },
+                  { text: 'Rheumatology (586012)', value: '586012' },
+                  { text: 'Endocrinology (586015)', value: '586015' },
+                  {
+                    text: 'Institute for Minority Health Research (IMHR) (586020)',
+                    value: '586020',
+                  },
+                  {
+                    text: 'Center for Dissemination & Implementation Science (CDIS) (586030)',
+                    value: '586030',
+                  },
+                ]"
+                item-title="text"
+                item-value="value"
                 label="PI Division Home Unit"
                 required
-              ></v-text-field>
+              ></v-select>
 
               <!-- Sponsor Deadline -->
               <v-menu
@@ -98,18 +119,30 @@
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
               </v-radio-group>
-              <v-text-field
-                v-model="formData.primeInstitution"
-                label="Prime Institution Name"
-              ></v-text-field>
-              <v-text-field
-                v-model="formData.primeInstitutionContact"
-                label="Prime Institution Contact Name"
-              ></v-text-field>
-              <v-text-field
-                v-model="formData.primeInstitutionContactEmail"
-                label="Prime Institution Contact Email"
-              ></v-text-field>
+
+              <!-- Conditional Block for Prime Institution Details -->
+              <template v-if="formData.isSubaward === 'yes'">
+                <v-card class="optional-block">
+                  <v-card-title class="optional-title">Prime Institution Details</v-card-title>
+                  <v-card-text>
+                    <v-text-field
+                      v-model="formData.primeInstitution"
+                      label="Prime Institution Name"
+                      required
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.primeInstitutionContact"
+                      label="Prime Institution Contact Name"
+                      required
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.primeInstitutionContactEmail"
+                      label="Prime Institution Contact Email"
+                      required
+                    ></v-text-field>
+                  </v-card-text>
+                </v-card>
+              </template>
 
               <v-select
                 v-model="formData.submissionBy"
@@ -137,19 +170,48 @@
               <v-select
                 v-model="formData.activityType"
                 :items="[
-                  'Basic Science Research',
-                  'Clinical Research',
-                  'Dissemination/Implementation Science Research',
-                  'Institutional Training Grant',
-                  'Career Development Grant',
-                  'Sponsored Instruction',
-                  'Other Sponsored Activity',
+                  { text: 'Research', value: 'Research' },
+                  { text: 'Clinical Trial', value: 'Clinical Trial' },
+                  { text: 'Other Sponsored Activity', value: 'Other Sponsored Activity' },
+                  { text: 'Instruction', value: 'Instruction' },
+                  { text: 'Fellowship', value: 'Fellowship' },
                 ]"
-                label="Activity Type"
-                required
+                item-title="text"
+                item-value="value"
+                label="ePAF Activity Type"
                 multiple
+                chips
+                closable-chips
+                required
               ></v-select>
 
+              <!-- Clinical Trial Definition Box -->
+              <v-card class="clinical-trial-info">
+                <v-card-title class="info-title">What is a Clinical Trial?</v-card-title>
+                <v-card-text>
+                  <p>
+                    <strong>The National Institutes of Health (NIH)</strong> defines a clinical
+                    trial as a research study that involves all of the following:
+                  </p>
+                  <ul class="info-list">
+                    <li><strong>a.</strong> The study involves human participants.</li>
+                    <li>
+                      <strong>b.</strong> Participants are prospectively assigned to an
+                      intervention.
+                    </li>
+                    <li>
+                      <strong>c.</strong> The study is designed to evaluate the effect of an
+                      intervention on the participants.
+                    </li>
+                    <li>
+                      <strong>d.</strong> The effect being evaluated is a health-related biomedical
+                      or behavioral outcome.
+                    </li>
+                  </ul>
+                </v-card-text>
+              </v-card>
+
+              <!-- Clinical Trial Question -->
               <v-radio-group
                 v-model="formData.isClinicalTrial"
                 label="Is this a Clinical Trial?"
@@ -158,6 +220,34 @@
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
               </v-radio-group>
+
+              <!-- Conditional Follow-up Questions if "Yes" is Selected -->
+              <template v-if="formData.isClinicalTrial === 'yes'">
+                <v-card class="optional-block">
+                  <v-card-title class="optional-title">
+                    Would you like to consult with someone regarding the Clinical Trials/Human
+                    Subjects section in ASSIST?
+                  </v-card-title>
+                  <v-card-text>
+                    <v-radio-group v-model="formData.consultClinicalTrials">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
+
+                <v-card class="optional-block">
+                  <v-card-title class="optional-title">
+                    Would you like to consult with the DOM CTU? (Add contact email address)
+                  </v-card-title>
+                  <v-card-text>
+                    <v-radio-group v-model="formData.consultDOMCTU">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
+              </template>
 
               <!-- Project Details -->
               <v-text-field
@@ -176,12 +266,33 @@
                 required
               ></v-text-field>
 
-              <!-- Key Personnel -->
-              <v-textarea
-                v-model="formData.keyPersonnel"
-                label="Key Personnel (Names & Emails)"
-                required
-              ></v-textarea>
+              <v-card class="optional-block">
+  <v-card-title class="optional-title">Key Personnel</v-card-title>
+  <v-card-text>
+    <div v-for="(person, index) in formData.keyPersonnel" :key="index" class="person-entry">
+      <v-text-field
+        v-model="person.name"
+        label="Name"
+        required
+      ></v-text-field>
+      <v-text-field
+        v-model="person.email"
+        label="Email"
+        required
+      ></v-text-field>
+      <v-text-field
+        v-model="person.institution"
+        label="UIC Home Unit or Other Institution Name"
+        required
+      ></v-text-field>
+      <v-btn icon density="comfortable" size="small" @click="removeKeyPersonnel(index)">
+        <v-icon>mdi-delete</v-icon>
+      </v-btn>
+    </div>
+    <v-btn class="add-btn" @click="addKeyPersonnel">+ Add Key Personnel</v-btn>
+  </v-card-text>
+</v-card>
+
 
               <!-- Additional Questions -->
               <v-radio-group
@@ -191,6 +302,35 @@
                 <v-radio label="Yes" value="yes"></v-radio>
                 <v-radio label="No" value="no"></v-radio>
               </v-radio-group>
+
+              <!-- Conditional Fields if "Yes" is Selected -->
+              <template v-if="formData.hasSubcontracts === 'yes'">
+                <v-card class="optional-block">
+                  <v-card-title class="optional-title">Subcontract Details</v-card-title>
+                  <v-card-text>
+                    <v-text-field
+                      v-model="formData.subcontractInstitution"
+                      label="Institution Name"
+                      required
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.subcontractSitePI"
+                      label="Site PI"
+                      required
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.subcontractContactName"
+                      label="Contact Name"
+                      required
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.subcontractContactEmail"
+                      label="Contact Email"
+                      required
+                    ></v-text-field>
+                  </v-card-text>
+                </v-card>
+              </template>
 
               <v-select
                 v-model="formData.additionalRequirements"
@@ -298,12 +438,12 @@ export default {
         piFirstName: '',
         piLastName: '',
         piEmail: '',
-        piDivision: '',
+        piDivision: null,
         sponsorDeadlineDate: new Date(),
         sponsorDeadlineTime: '',
         proposalType: '',
         fundingAgency: '',
-        isSubaward: null,
+        isSubaward: '',
         primeInstitution: '',
         primeInstitutionContact: '',
         primeInstitutionContactEmail: '',
@@ -312,12 +452,18 @@ export default {
         fundingOpportunity: '',
         temporaryAppId: '',
         activityType: [],
-        isClinicalTrial: null,
+        isClinicalTrial: '',
+        consultClinicalTrials: '',
+        consultDOMCTU: '',
         projectStartDate: '',
         projectEndDate: '',
         projectTitle: '',
-        keyPersonnel: '',
-        hasSubcontracts: null,
+        keyPersonnel: [],
+        hasSubcontracts: '',
+        subcontractInstitution: '',
+        subcontractSitePI: '',
+        subcontractContactName: '',
+        subcontractContactEmail: '',
         additionalRequirements: [],
         hasConflictOfInterest: null,
       },
@@ -359,12 +505,12 @@ export default {
           piFirstName: '',
           piLastName: '',
           piEmail: '',
-          piDivision: '',
+          piDivision: null,
           sponsorDeadlineDate: new Date(),
           sponsorDeadlineTime: '',
           proposalType: '',
           fundingAgency: '',
-          isSubaward: null,
+          isSubaward: '',
           primeInstitution: '',
           primeInstitutionContact: '',
           primeInstitutionContactEmail: '',
@@ -373,12 +519,18 @@ export default {
           fundingOpportunity: '',
           temporaryAppId: '',
           activityType: [],
-          isClinicalTrial: null,
+          isClinicalTrial: '',
+          consultClinicalTrials: '',
+          consultDOMCTU: '',
           projectStartDate: '',
           projectEndDate: '',
           projectTitle: '',
-          keyPersonnel: '',
-          hasSubcontracts: null,
+          keyPersonnel: [],
+          hasSubcontracts: '',
+          subcontractInstitution: '',
+          subcontractSitePI: '',
+          subcontractContactName: '',
+          subcontractContactEmail: '',
           additionalRequirements: [],
           hasConflictOfInterest: null,
         }
@@ -392,6 +544,16 @@ export default {
       const today = new Date()
       today.setHours(0, 0, 0, 0) // Remove time from comparison
       return new Date(date) >= today
+    },
+    addKeyPersonnel() {
+      this.formData.keyPersonnel.push({
+        name: '',
+        email: '',
+        institution: '',
+      })
+    },
+    removeKeyPersonnel(index) {
+      this.formData.keyPersonnel.splice(index, 1)
     },
   },
   watch: {
@@ -619,5 +781,62 @@ p {
   font-size: 1.2em;
   margin-right: 8px;
   vertical-align: middle;
+}
+.clinical-trial-info {
+  border: 2px solid #003da5; /* UIC Blue */
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: #f1f5fa; /* Light blue background */
+}
+
+.info-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #003da5; /* UIC Blue */
+  margin-bottom: 8px;
+}
+
+.info-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.info-list li {
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.optional-block {
+  border: 2px solid #d68400; /* Warm brown-orange border */
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+  background-color: #fcf7f2; /* Light beige background */
+}
+
+.optional-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #d68400; /* Matching brown-orange text */
+  margin-bottom: 8px;
+}
+
+.person-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* Add Key Personnel Button */
+.add-btn {
+  background-color: #d68400 !important; /* New Button Color */
+  color: white !important;
+}
+
+.add-btn:hover {
+  background-color: #b56e00 !important; /* Darker on Hover */
 }
 </style>

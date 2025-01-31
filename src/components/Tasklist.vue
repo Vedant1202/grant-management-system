@@ -84,7 +84,12 @@
           </v-col>
         </v-row> -->
         <v-row>
-          <v-col v-for="header in headers" :key="header.value" cols="12" sm="4">
+          <v-col
+            v-for="header in headers.filter((h) => h.value !== 'completed')"
+            :key="header.value"
+            cols="12"
+            sm="4"
+          >
             <v-text-field
               :label="header.title"
               v-model="currentTask[header.value]"
@@ -104,22 +109,51 @@
     </v-card>
 
     <!-- Tasklist Table -->
+    <v-row class="mt-4">
+      <v-col class="text-left">
+        <strong>Remaining Tasks: {{ remainingTasks }}</strong>
+      </v-col>
+    </v-row>
+
+    <!-- Table -->
     <v-data-table
       :headers="headers"
       :items="tasklist"
-      item-value="formFile"
+      :item-value="(item) => item.id"
       dense
       class="elevation-1"
     >
-      <template #item.actions="{ item }">
-        <!-- Edit Button -->
-        <v-btn icon @click="editTask(item)">
-          <v-icon color="blue">mdi-pencil</v-icon>
-        </v-btn>
-        <!-- Delete Button -->
-        <v-btn icon @click="removeTask(tasklist.indexOf(item))">
-          <v-icon color="red">mdi-delete</v-icon>
-        </v-btn>
+      <template #item="{ item }">
+        <tr>
+          <!-- Checkbox Column -->
+          <td>
+            <v-checkbox
+              :model-value="isTaskCompleted(item)"
+              @update:model-value="toggleTaskCompletion(item)"
+              dense
+            ></v-checkbox>
+          </td>
+
+          <!-- Task Data with Strikethrough -->
+          <td v-for="header in headers.slice(1, -1)" :key="header.value">
+            <span :class="{ 'task-completed': isTaskCompleted(item) }">
+              {{ item[header.value] }}
+            </span>
+          </td>
+
+          <!-- Actions Column -->
+          <td>
+            <!-- Edit Button -->
+            <v-btn icon @click="editTask(item)">
+              <v-icon color="blue">mdi-pencil</v-icon>
+            </v-btn>
+
+            <!-- Delete Button -->
+            <v-btn icon @click="removeTask(tasklist.indexOf(item))">
+              <v-icon color="red">mdi-delete</v-icon>
+            </v-btn>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </v-container>
@@ -169,6 +203,8 @@ export default {
         finalFileLocation: '',
       },
 
+      // completedTasks: new Set(),
+
       isEditing: false, // Track if editing a task
       editingIndex: null, // Track index of task being edited
 
@@ -192,6 +228,12 @@ export default {
     },
     tasklistStore() {
       return useTasklistStore() // Access the Pinia store
+    },
+    completedTasks() {
+      return this.tasklistStore.getCompletedTasks(this.grantId)
+    },
+    remainingTasks() {
+      return this.tasklist.length - this.completedTasks.size
     },
   },
   watch: {
@@ -268,21 +310,25 @@ export default {
           return
       }
 
-      // Dynamically update the headers based on the selected tasklist
+      // Dynamically update headers
       if (selectedTasklist.length > 0) {
         this.headers = Object.keys(selectedTasklist[0]).map((key) => ({
-          title: key.replace(/([A-Z])/g, ' $1').trim(), // Format key into a readable title
+          title: key.replace(/([A-Z])/g, ' $1').trim(),
           value: key,
         }))
       }
 
-      this.headers.push({
-        title: 'Actions',
-        value: 'actions',
-        sortable: false,
-      })
+      // Add unique ID to each task
+      selectedTasklist = selectedTasklist.map((task) => ({
+        ...task,
+        id: Date.now() + Math.floor(Math.random() * 1000), // Unique numeric ID
+      }))
 
-      // Add each task from the selected template to the store
+      // Ensure checkbox and actions columns are always present
+      this.headers.unshift({ title: '✔', value: 'completed', sortable: false })
+      this.headers.push({ title: 'Actions', value: 'actions', sortable: false })
+
+      // Add each task with an ID to the store
       selectedTasklist.forEach((task) => {
         this.tasklistStore.addTask(this.grantId, task)
       })
@@ -293,13 +339,47 @@ export default {
       const savedTasks = JSON.parse(localStorage.getItem(this.grantId)) || []
       this.tasklist = savedTasks
     },
+
     // Save tasks for the specific grant
     saveTasks() {
       localStorage.setItem(this.grantId, JSON.stringify(this.tasklist))
     },
+
+    saveCompletedTasks() {
+      localStorage.setItem(
+        `completedTasks-${this.grantId}`,
+        JSON.stringify([...this.completedTasks]),
+      )
+    },
+
+    loadCompletedTasks() {
+      const savedTasks = JSON.parse(localStorage.getItem(`completedTasks-${this.grantId}`)) || []
+      this.completedTasks = new Set(savedTasks)
+    },
+
+    getTaskKey(task) {
+      return `${task.formFile}_${task.section}` // Ensure unique keys
+    },
+
+    toggleTaskCompletion(task) {
+      this.tasklistStore.toggleTaskCompletion(this.grantId, task.id)
+    },
+
+    isTaskCompleted(task) {
+      return this.completedTasks.has(task.id)
+    },
   },
   mounted() {
     this.loadTasklist() // Load the tasklist on component mount
+    this.loadCompletedTasks() // Load completed tasks from localStorage
   },
 }
 </script>
+
+<style scoped>
+.task-completed {
+  text-decoration: line-through;
+  color: grey;
+  opacity: 0.6;
+}
+</style>

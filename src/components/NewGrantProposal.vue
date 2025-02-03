@@ -158,7 +158,7 @@
               ></v-select>
               <v-text-field
                 v-model="formData.fundingOpportunity"
-                label="Funding Opportunity Number/Guidelines (URL or PDF)"
+                label="Funding Opportunity Number/Guidelines (URL)"
                 required
               ></v-text-field>
               <v-text-field
@@ -179,47 +179,38 @@
                 item-title="text"
                 item-value="value"
                 label="ePAF Activity Type"
-                multiple
-                chips
-                closable-chips
                 required
               ></v-select>
 
               <!-- Clinical Trial Definition Box -->
-              <v-card class="clinical-trial-info">
-                <v-card-title class="info-title">What is a Clinical Trial?</v-card-title>
-                <v-card-text>
-                  <p>
-                    <strong>The National Institutes of Health (NIH)</strong> defines a clinical
-                    trial as a research study that involves all of the following:
-                  </p>
-                  <ul class="info-list">
-                    <li><strong>a.</strong> The study involves human participants.</li>
-                    <li>
-                      <strong>b.</strong> Participants are prospectively assigned to an
-                      intervention.
-                    </li>
-                    <li>
-                      <strong>c.</strong> The study is designed to evaluate the effect of an
-                      intervention on the participants.
-                    </li>
-                    <li>
-                      <strong>d.</strong> The effect being evaluated is a health-related biomedical
-                      or behavioral outcome.
-                    </li>
-                  </ul>
-                </v-card-text>
-              </v-card>
+              <template v-if="formData.activityType === 'Clinical Trial'">
+                <v-card class="clinical-trial-info">
+                  <v-card-title class="info-title">What is a Clinical Trial?</v-card-title>
+                  <v-card-text>
+                    <p>
+                      <strong>The National Institutes of Health (NIH)</strong> defines a clinical
+                      trial as a research study that involves all of the following:
+                    </p>
+                    <ul class="info-list">
+                      <li><strong>a.</strong> The study involves human participants.</li>
+                      <li>
+                        <strong>b.</strong> Participants are prospectively assigned to an
+                        intervention.
+                      </li>
+                      <li>
+                        <strong>c.</strong> The study is designed to evaluate the effect of an
+                        intervention on the participants.
+                      </li>
+                      <li>
+                        <strong>d.</strong> The effect being evaluated is a health-related
+                        biomedical or behavioral outcome.
+                      </li>
+                    </ul>
+                  </v-card-text>
+                </v-card>
+              </template>
 
               <!-- Clinical Trial Question -->
-              <v-radio-group
-                v-model="formData.isClinicalTrial"
-                label="Is this a Clinical Trial?"
-                :mandatory="true"
-              >
-                <v-radio label="Yes" value="yes"></v-radio>
-                <v-radio label="No" value="no"></v-radio>
-              </v-radio-group>
 
               <!-- Conditional Follow-up Questions if "Yes" is Selected -->
               <template v-if="formData.isClinicalTrial === 'yes'">
@@ -267,32 +258,32 @@
               ></v-text-field>
 
               <v-card class="optional-block">
-  <v-card-title class="optional-title">Key Personnel</v-card-title>
-  <v-card-text>
-    <div v-for="(person, index) in formData.keyPersonnel" :key="index" class="person-entry">
-      <v-text-field
-        v-model="person.name"
-        label="Name"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="person.email"
-        label="Email"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="person.institution"
-        label="UIC Home Unit or Other Institution Name"
-        required
-      ></v-text-field>
-      <v-btn icon density="comfortable" size="small" @click="removeKeyPersonnel(index)">
-        <v-icon>mdi-delete</v-icon>
-      </v-btn>
-    </div>
-    <v-btn class="add-btn" @click="addKeyPersonnel">+ Add Key Personnel</v-btn>
-  </v-card-text>
-</v-card>
-
+                <v-card-title class="optional-title">Key Personnel</v-card-title>
+                <v-card-text>
+                  <div
+                    v-for="(person, index) in formData.keyPersonnel"
+                    :key="index"
+                    class="person-entry"
+                  >
+                    <v-text-field v-model="person.name" label="Name" required></v-text-field>
+                    <v-text-field v-model="person.email" label="Email" required></v-text-field>
+                    <v-text-field
+                      v-model="person.institution"
+                      label="UIC Home Unit or Other Institution Name"
+                      required
+                    ></v-text-field>
+                    <v-btn
+                      icon
+                      density="comfortable"
+                      size="small"
+                      @click="removeKeyPersonnel(index)"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </div>
+                  <v-btn class="add-btn" @click="addKeyPersonnel">+ Add Key Personnel</v-btn>
+                </v-card-text>
+              </v-card>
 
               <!-- Additional Questions -->
               <v-radio-group
@@ -308,26 +299,41 @@
                 <v-card class="optional-block">
                   <v-card-title class="optional-title">Subcontract Details</v-card-title>
                   <v-card-text>
-                    <v-text-field
-                      v-model="formData.subcontractInstitution"
-                      label="Institution Name"
-                      required
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="formData.subcontractSitePI"
-                      label="Site PI"
-                      required
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="formData.subcontractContactName"
-                      label="Contact Name"
-                      required
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="formData.subcontractContactEmail"
-                      label="Contact Email"
-                      required
-                    ></v-text-field>
+                    <div
+                      v-for="(subcontract, index) in formData.subcontracts"
+                      :key="index"
+                      class="person-entry"
+                    >
+                      <v-text-field
+                        v-model="subcontract.subcontractInstitution"
+                        label="Institution Name"
+                        required
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="subcontract.subcontractSitePI"
+                        label="Site PI"
+                        required
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="subcontract.subcontractContactName"
+                        label="Contact Name"
+                        required
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="subcontract.subcontractContactEmail"
+                        label="Contact Email"
+                        required
+                      ></v-text-field>
+                      <v-btn
+                        icon
+                        density="comfortable"
+                        size="small"
+                        @click="removeSubcontract(index)"
+                      >
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </div>
+                    <v-btn class="add-btn" @click="addSubcontract">+ Add Subcontract</v-btn>
                   </v-card-text>
                 </v-card>
               </template>
@@ -451,7 +457,7 @@ export default {
         submissionType: '',
         fundingOpportunity: '',
         temporaryAppId: '',
-        activityType: [],
+        activityType: '',
         isClinicalTrial: '',
         consultClinicalTrials: '',
         consultDOMCTU: '',
@@ -460,10 +466,7 @@ export default {
         projectTitle: '',
         keyPersonnel: [],
         hasSubcontracts: '',
-        subcontractInstitution: '',
-        subcontractSitePI: '',
-        subcontractContactName: '',
-        subcontractContactEmail: '',
+        subcontracts: [],
         additionalRequirements: [],
         hasConflictOfInterest: null,
       },
@@ -518,7 +521,7 @@ export default {
           submissionType: '',
           fundingOpportunity: '',
           temporaryAppId: '',
-          activityType: [],
+          activityType: '',
           isClinicalTrial: '',
           consultClinicalTrials: '',
           consultDOMCTU: '',
@@ -527,10 +530,7 @@ export default {
           projectTitle: '',
           keyPersonnel: [],
           hasSubcontracts: '',
-          subcontractInstitution: '',
-          subcontractSitePI: '',
-          subcontractContactName: '',
-          subcontractContactEmail: '',
+          subcontracts: [],
           additionalRequirements: [],
           hasConflictOfInterest: null,
         }
@@ -554,6 +554,17 @@ export default {
     },
     removeKeyPersonnel(index) {
       this.formData.keyPersonnel.splice(index, 1)
+    },
+    addSubcontract() {
+      this.formData.subcontracts.push({
+        subcontractInstitution: '',
+        subcontractSitePI: '',
+        subcontractContactName: '',
+        subcontractContactEmail: '',
+      })
+    },
+    removeSubcontract(index) {
+      this.formData.subcontracts.splice(index, 1)
     },
   },
   watch: {

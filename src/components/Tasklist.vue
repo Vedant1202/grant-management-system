@@ -142,14 +142,13 @@
           </td>
 
           <!-- Actions Column -->
-          <td>
+          <td class="pa-2">
             <!-- Edit Button -->
-            <v-btn icon @click="editTask(item)">
+            <v-btn size="x-small" icon @click="editTask(item)">
               <v-icon color="blue">mdi-pencil</v-icon>
             </v-btn>
-
             <!-- Delete Button -->
-            <v-btn icon @click="removeTask(tasklist.indexOf(item))">
+            <v-btn class="mt-1" size="x-small" icon @click="removeTask(tasklist.indexOf(item))">
               <v-icon color="red">mdi-delete</v-icon>
             </v-btn>
           </td>
@@ -325,7 +324,7 @@ export default {
       }))
 
       // Ensure checkbox and actions columns are always present
-      this.headers.unshift({ title: '✔', value: 'completed', sortable: false })
+      this.headers.unshift({ title: 'Done?', value: 'completed', sortable: false })
       this.headers.push({ title: 'Actions', value: 'actions', sortable: false })
 
       // Add each task with an ID to the store

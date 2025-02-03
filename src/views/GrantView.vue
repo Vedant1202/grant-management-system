@@ -1,10 +1,10 @@
 <template>
   <v-container>
-    <v-btn text color="primary" @click="$router.go(-1)">Back</v-btn>
+    <v-btn class="back-button" color="primary" variant="outlined" @click="$router.go(-1)">Back</v-btn>
 
     <!-- Tabs -->
     <v-card>
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" background-color="#d50032" dark>
         <v-tab value="overview">Overview</v-tab>
         <v-tab v-if="grant.status === 'accepted'" value="timeline">Timeline</v-tab>
         <v-tab v-if="grant.status === 'accepted'" value="tasklist">Tasklist</v-tab>
@@ -14,21 +14,27 @@
         <v-tabs-window v-model="tab">
           <!-- Overview Tab -->
           <v-tabs-window-item value="overview">
-            <v-card>
-              <v-card-text>
+            <v-card class="overview-card">
+              <v-card-title class="headline">Grant Overview</v-card-title>
+
+              <!-- Status & Completion Status Pills -->
+              <v-row justify="center" class="status-container">
+                <v-chip :color="statusColor(grant.status)" class="status-pill">{{ grant.status }}</v-chip>
+                <v-chip :color="completionStatusColor(grant.completionStatus)" class="status-pill">{{ grant.completionStatus }}</v-chip>
+              </v-row>
+
+              <v-divider></v-divider>
+              <v-card-text class="text-left">
                 <v-row>
-                  <v-col cols="12" v-for="(value, key) in grant" :key="key">
-                    <strong>{{ formatFieldName(key) }}:</strong>
-                    <template v-if="key === 'status'">
-                      <span
-                        :class="statusClass(value)"
-                        style="font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 5px"
-                      >
-                        {{ formatFieldValue(key, value) }}
-                      </span>
+                  <v-col cols="12" v-for="(value, key) in displayFields" :key="key">
+                    <strong class="field-title">{{ formatFieldName(key) }}:</strong>
+                    <template v-if="Array.isArray(value)">
+                      <ul>
+                        <li v-for="(item, index) in value" :key="index">{{ item }}</li>
+                      </ul>
                     </template>
                     <template v-else>
-                      <span>{{ formatFieldValue(key, value) }}</span>
+                      <span class="field-value">{{ value }}</span>
                     </template>
                   </v-col>
                 </v-row>
@@ -62,7 +68,7 @@
 <script>
 import moment from 'moment'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
-import Tasklist from '@/components/Tasklist.vue' // Import Tasklist component
+import Tasklist from '@/components/Tasklist.vue'
 import Timeline from '@/components/Timeline.vue'
 
 export default {
@@ -72,7 +78,7 @@ export default {
   },
   data() {
     return {
-      tab: 'overview', // Default tab is Overview
+      tab: 'overview',
     }
   },
   computed: {
@@ -81,29 +87,120 @@ export default {
       const id = this.$route.params.id
       return store.proposals.find((p) => p.id === id) || {}
     },
+    displayFields() {
+      return {
+        piFirstName: this.grant.piFirstName,
+        piLastName: this.grant.piLastName,
+        piEmail: this.grant.piEmail,
+        piDivision: this.grant.piDivision,
+        sponsorDeadlineDate: this.formatFieldValue('sponsorDeadlineDate', this.grant.sponsorDeadlineDate),
+        sponsorDeadlineTime: this.formatTime(this.grant.sponsorDeadlineTime),
+        proposalType: this.grant.proposalType,
+        fundingAgency: this.grant.fundingAgency,
+        isSubaward: this.grant.isSubaward,
+        primeInstitution: this.grant.primeInstitution,
+        primeInstitutionContact: this.grant.primeInstitutionContact,
+        primeInstitutionContactEmail: this.grant.primeInstitutionContactEmail,
+        submissionBy: this.grant.submissionBy,
+        submissionType: this.grant.submissionType,
+        fundingOpportunity: this.grant.fundingOpportunity,
+        temporaryAppId: this.grant.temporaryAppId,
+        activityType: this.grant.activityType,
+        projectTitle: this.grant.projectTitle,
+        keyPersonnel: this.grant.keyPersonnel?.map(kp => `${kp?.name} (${kp?.email}, ${kp?.institution})`).join(', '),
+        hasSubcontracts: this.grant.hasSubcontracts,
+        subcontracts: this.grant.subcontracts?.map(sc => `${sc?.subcontractInstitution} - PI: ${sc?.subcontractSitePI}, Contact: ${sc?.subcontractContactName} (${sc?.subcontractContactEmail})`).join('; '),
+        additionalRequirements: this.grant.additionalRequirements?.join(', '),
+        hasConflictOfInterest: this.grant.hasConflictOfInterest,
+        rejectionNote: this.grant.rejectionNote || 'N/A',
+      }
+    }
   },
   methods: {
     formatFieldName(key) {
-      // Convert camelCase keys to readable labels
       return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
     },
     formatFieldValue(key, value) {
-      if (value === null || value === '') {
-        return 'N/A' // Handle empty or null values
+      if (!value) {
+        return 'N/A'
       }
-      if (key === 'sponsorDueDate') {
+      if (key === 'sponsorDeadlineDate') {
         return moment(value).format('MMMM Do, YYYY')
       }
-      return value // Return the value as-is for other fields
+      return value
     },
-    statusClass(status) {
-      return {
-        'green--text': status === 'accepted',
-        'orange--text': status === 'pending',
-        'red--text': status === 'rejected',
-        'pa-1': true, // Adds consistent padding for the status badge
-      }
+    formatTime(value) {
+      return value ? moment(value, 'HH:mm').format('hh:mm A') : 'N/A';
     },
-  },
+    statusColor(status) {
+      return status === 'accepted' ? '#008000' : status === 'rejected' ? '#d50032' : '#FFA500'
+    },
+    completionStatusColor(status) {
+      return status === 'completed' ? '#008000' : status === 'in-progress' ? '#003da5' : '#808080'
+    }
+  }
 }
 </script>
+
+<style scoped>
+.overview-card {
+  background-color: #f1f5fa;
+  border-left: 5px solid #d50032;
+  padding: 16px;
+}
+
+.field-title {
+  color: #003da5;
+  font-weight: bold;
+}
+
+.field-value {
+  color: #333;
+}
+
+.v-tabs {
+  background-color: #d50032;
+  color: white;
+}
+
+.v-card {
+  border-radius: 8px;
+}
+
+.v-btn {
+  background-color: #d50032;
+  color: white;
+}
+
+.v-btn:hover {
+  background-color: #b40029;
+}
+
+.back-button {
+  background-color: #ffff;
+  margin-bottom: 8px;
+}
+
+.back-button:hover {
+  background-color: #eee;
+}
+
+.overview-card {
+  background-color: #fff;
+  /* border-left: 5px solid #d50032; */
+  padding: 16px;
+  text-align: left;
+  box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;}
+
+.status-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.status-pill {
+  margin: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+</style>

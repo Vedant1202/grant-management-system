@@ -134,17 +134,17 @@
                 </td>
 
                 <!-- Actions Column -->
-                <td>
+                <td class="pa-2">
                   <!-- Edit Button -->
-                  <v-btn icon @click="editItem(item)">
+                  <v-btn size="x-small" icon @click="editItem(item)">
                     <v-icon color="blue">mdi-pencil</v-icon>
                   </v-btn>
                   <!-- Delete Button -->
-                  <v-btn icon @click="removeItem(item)">
+                  <v-btn size="x-small" class="mt-1" icon @click="removeItem(item)">
                     <v-icon color="red">mdi-delete</v-icon>
                   </v-btn>
                   <!-- Toggle Complete/Incomplete Button -->
-                  <v-btn icon @click="markComplete(item)">
+                  <v-btn size="x-small" class="mt-1" icon @click="markComplete(item)">
                     <v-icon :color="item.completed ? 'orange' : 'green'">
                       {{ item.completed ? 'mdi-undo' : 'mdi-check' }}
                     </v-icon>

@@ -200,6 +200,11 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-row class="mt-4">
+        <v-col>
+          <v-btn color="success" :disabled="!hasChanges" @click="saveChanges"> Save Changes </v-btn>
+        </v-col>
+      </v-row>
     </v-card>
   </v-container>
 </template>
@@ -247,7 +252,7 @@ export default {
       return [...this.timeline].sort((a, b) => new Date(a.date) - new Date(b.date))
     },
     timeline() {
-      return this.timelineStore.getTimeline(this.grantId) // Fetch the timeline for the specific grantId
+      return this.timelineStore.getTimeline(this.grantId) // Always fetch from store
     },
     formattedDate() {
       if (!this.currentItem.date) return 'N/A'
@@ -262,6 +267,13 @@ export default {
     sponsorDueDate() {
       const proposal = this.grantProposalsStore.proposals.find((p) => p.id === this.grantId)
       return proposal ? moment(proposal.sponsorDueDate) : null // Parse sponsorDueDate as a moment object
+    },
+    hasChanges() {
+      // return (
+      //   JSON.stringify(this.timeline) !==
+      //   JSON.stringify(this.timelineStore.getTimeline(this.grantId))
+      // )
+      return true
     },
   },
   methods: {
@@ -372,11 +384,10 @@ export default {
         }
       })
     },
-    loadTimeline() {
-      this.timelineStore.loadTimeline(this.grantId) // Load the timeline for the specific grantId
-    },
-    saveTimeline() {
-      this.timelineStore.saveTimeline(this.grantId, this.timeline) // Save the current timeline
+
+    saveChanges() {
+      this.timelineStore.saveTimeline(this.grantId, this.timeline) // Save timeline to store
+      this.$nextTick(() => alert('Timeline changes saved successfully!')) // Optional feedback
     },
 
     addOrUpdateItem() {
@@ -410,29 +421,9 @@ export default {
       this.isEditing = false
       this.editingIndex = null
     },
-
-    // addOrUpdateItem() {
-    //   if (this.isEditing) {
-    //     this.timeline.splice(this.editingIndex, 1, { ...this.currentItem })
-    //   } else {
-    //     this.timeline.push({ ...this.currentItem })
-    //   }
-    //   this.saveTimeline()
-    //   this.resetForm()
-    // },
-    // editItem(item) {
-    //   this.currentItem = { ...item }
-    //   this.isEditing = true
-    //   this.editingIndex = this.timeline.indexOf(item)
-    //   this.formattedDate = moment(item.date).format('MMMM Do, YYYY')
-    // },
-    // removeItem(item) {
-    //   this.timeline = this.timeline.filter((i) => i !== item)
-    //   this.saveTimeline()
-    // },
     markComplete(item) {
       item.completed = !item.completed // Toggle the completion status
-      this.saveTimeline() // Save the updated timeline to the store
+      this.saveChanges() // Save the updated timeline to the store
     },
     resetForm() {
       this.currentItem = {
@@ -469,22 +460,6 @@ export default {
       const comparingDate = new Date(date) // Ensure input is a Date object
       return comparingDate >= today // Allow only future dates
     },
-    loadTimeline() {
-      const savedTimelines = JSON.parse(localStorage.getItem('timelines')) || {}
-      const savedTimeline = savedTimelines[this.grantId] || [] // Load the timeline for the specific grantId
-      this.timeline = savedTimeline.map((item) => ({
-        ...item,
-        date: new Date(item.date), // Convert saved date strings back to Date objects
-      }))
-    },
-    saveTimeline() {
-      const savedTimelines = JSON.parse(localStorage.getItem('timelines')) || {}
-      savedTimelines[this.grantId] = this.timeline.map((item) => ({
-        ...item,
-        date: item.date.toISOString(), // Save date as ISO strings for consistency
-      }))
-      localStorage.setItem('timelines', JSON.stringify(savedTimelines))
-    },
 
     getTomorrowDate() {
       const today = new Date()
@@ -494,7 +469,7 @@ export default {
     },
     formatDate(date) {
       if (!date) return 'N/A'
-      return date.toLocaleDateString('en-US', {
+      return new Date(date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -509,7 +484,7 @@ export default {
     formatTime(date) {
       if (!date) return 'N/A' // Handle empty or invalid dates
       const parsedDate = new Date(date) // Ensure date is a valid Date object
-      return parsedDate.toLocaleDateString('en-US', {
+      return new Date(parsedDate).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -521,9 +496,8 @@ export default {
     },
   },
   mounted() {
+    this.timelineStore.loadTimeline(this.grantId) // Ensure timeline is loaded from store
     this.formattedDate = this.formatDate(this.currentItem.date) // Format tomorrow's date for display
-
-    this.loadTimeline()
   },
 }
 </script>

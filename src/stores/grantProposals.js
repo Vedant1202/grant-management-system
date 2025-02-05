@@ -10,7 +10,7 @@ export const useGrantProposalsStore = defineStore('grantProposals', {
         ...proposal,
         id: Date.now().toString(), // Assign a unique ID
         status: 'pending',
-        completionStatus: 'in progress', // Default status is "pending"
+        completionStatus: 'Not started', // Default status is "pending"
         rejectionNote: '', // Default rejection note
       }
       this.proposals.push(newProposal)
@@ -27,7 +27,12 @@ export const useGrantProposalsStore = defineStore('grantProposals', {
       }
     },
     getAdminProposals() {
-      return this.proposals.filter((p) => p.status === 'accepted' || p.status === 'rejected')
+      return this.proposals.filter(
+        (p) =>
+          p.status === 'accepted' ||
+          p?.status === 'Accepted - Pending Timeline/Tasklist Confirmation' ||
+          p.status === 'rejected',
+      )
     },
     getPendingProposals() {
       return this.proposals.filter((p) => p.status === 'pending')

@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 
 export const useTasklistStore = defineStore('tasklist', {
   state: () => ({
-    tasklists: {}, // Stores tasklists keyed by grantId
-    completedTasks: {}, // Stores completed task IDs keyed by grantId
+    tasklists: JSON.parse(localStorage.getItem('tasklists')) || {}, // Load from localStorage
+    completedTasks: JSON.parse(localStorage.getItem('completedTasks')) || {}, // Load from localStorage
   }),
   getters: {
     getTasklist: (state) => (grantId) => {
@@ -15,10 +15,13 @@ export const useTasklistStore = defineStore('tasklist', {
   },
   actions: {
     loadTasklist(grantId) {
+      const savedTasklists = JSON.parse(localStorage.getItem('tasklists')) || {}
+      this.tasklists = savedTasklists
       return this.getTasklist(grantId)
     },
     saveTasklist(grantId, tasklist) {
       this.tasklists[grantId] = tasklist
+      localStorage.setItem('tasklists', JSON.stringify(this.tasklists)) // Persist to localStorage
     },
     addTask(grantId, task) {
       const tasklist = this.getTasklist(grantId)
@@ -37,6 +40,7 @@ export const useTasklistStore = defineStore('tasklist', {
     },
     clearTasklist(grantId) {
       this.tasklists[grantId] = []
+      localStorage.setItem('tasklists', JSON.stringify(this.tasklists)) // Persist to localStorage
     },
 
     // ✅ Manage Completed Task State in Store
@@ -50,6 +54,8 @@ export const useTasklistStore = defineStore('tasklist', {
       } else {
         this.completedTasks[grantId].push(taskId)
       }
+
+      localStorage.setItem('completedTasks', JSON.stringify(this.completedTasks)) // Persist to localStorage
     },
   },
 })

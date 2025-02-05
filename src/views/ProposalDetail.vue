@@ -2,86 +2,102 @@
   <v-container>
     <v-btn text color="primary" @click="$router.go(-1)">Back</v-btn>
 
-    <v-card class="mt-4">
+    <v-card class="mt-4" outlined>
       <v-card-title>Proposal Details</v-card-title>
       <v-card-text>
         <v-row>
           <!-- PI Information -->
-          <v-col cols="12" sm="6"> <strong>PI Last Name:</strong> {{ proposal.piLastName }} </v-col>
           <v-col cols="12" sm="6">
             <strong>PI First Name:</strong> {{ proposal.piFirstName }}
           </v-col>
-          <v-col cols="12" sm="6"> <strong>x500:</strong> {{ proposal.x500 }} </v-col>
-          <v-col cols="12" sm="6"> <strong>Division:</strong> {{ proposal.division }} </v-col>
+          <v-col cols="12" sm="6"> <strong>PI Last Name:</strong> {{ proposal.piLastName }} </v-col>
+          <v-col cols="12" sm="6"> <strong>Email:</strong> {{ proposal.piEmail }} </v-col>
+          <v-col cols="12" sm="6"> <strong>Division:</strong> {{ proposal.piDivision }} </v-col>
 
-          <!-- Grant Details -->
-          <v-col cols="12" sm="6"> <strong>RFA/PA Announcement:</strong> {{ proposal.rfa }} </v-col>
+          <!-- Sponsor Information -->
           <v-col cols="12" sm="6">
-            <strong>Grant Mechanism:</strong> {{ proposal.grantMechanism }}
+            <strong>Funding Agency:</strong> {{ proposal.fundingAgency }}
           </v-col>
           <v-col cols="12" sm="6">
-            <strong>Career Development Award:</strong>
-            {{ proposal.careerAward === 'yes' ? 'Yes' : 'No' }}
+            <strong>Sponsor Deadline Date:</strong> {{ formattedSponsorDeadline }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Sponsor Deadline Time:</strong> {{ proposal.sponsorDeadlineTime }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Proposal Type:</strong> {{ proposal.proposalType }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Submission By:</strong> {{ proposal.submissionBy }}
           </v-col>
           <v-col cols="12" sm="6">
             <strong>Submission Type:</strong> {{ proposal.submissionType }}
           </v-col>
 
-          <!-- Sponsor Information -->
-          <v-col cols="12" sm="6"> <strong>Sponsor:</strong> {{ proposal.sponsor }} </v-col>
+          <!-- Project Details -->
           <v-col cols="12" sm="6">
-            <strong>Sponsor Due Date:</strong>
-            {{ formattedSponsorDueDate }}
-          </v-col>
-          <v-col cols="12" sm="12">
-            <strong>Proposed Title:</strong> {{ proposal.proposedTitle }}
+            <strong>Project Title:</strong> {{ proposal.projectTitle }}
           </v-col>
           <v-col cols="12" sm="6">
-            <strong>Continuous Submission:</strong>
-            {{ proposal.continuousSubmission === 'yes' ? 'Yes' : 'No' }}
+            <strong>Project Start Date:</strong> {{ proposal.projectStartDate }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Project End Date:</strong> {{ proposal.projectEndDate }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Activity Type:</strong> {{ proposal.activityType }}
           </v-col>
 
-          <!-- Personnel -->
+          <!-- Key Personnel -->
           <v-col cols="12">
-            <strong>Known Personnel:</strong>
-            {{ proposal.knownPersonnel }}
+            <strong>Key Personnel:</strong>
+            <ul>
+              <li v-for="person in proposal.keyPersonnel" :key="person.email">
+                {{ person.name }} ({{ person.email }}) - {{ person.institution }}
+              </li>
+            </ul>
           </v-col>
 
           <!-- Subcontracts -->
-          <v-col cols="12" sm="6">
-            <strong>Outgoing Subcontracts:</strong>
-            {{ proposal.outgoingSubcontracts === 'yes' ? 'Yes' : 'No' }}
+          <v-col cols="12">
+            <strong>Subcontracts:</strong>
+            <ul>
+              <li v-for="sub in proposal.subcontracts" :key="sub.subcontractContactEmail">
+                {{ sub.subcontractInstitution }} - PI: {{ sub.subcontractSitePI }}, Contact:
+                {{ sub.subcontractContactName }} ({{ sub.subcontractContactEmail }})
+              </li>
+            </ul>
           </v-col>
 
-          <!-- Human and Animal Subjects -->
-          <v-col cols="12" sm="6">
-            <strong>Human Subjects Involved:</strong>
-            {{ proposal.humanSubjects === 'yes' ? 'Yes' : 'No' }}
-          </v-col>
-          <v-col cols="12" sm="6">
-            <strong>Animals Involved:</strong>
-            {{ proposal.animalSubjects === 'yes' ? 'Yes' : 'No' }}
-          </v-col>
-
-          <!-- Pre-submission Review -->
-          <v-col cols="12" sm="6">
-            <strong>Pre-submission Review:</strong> {{ proposal.preSubmissionReview }}
-          </v-col>
-          <v-col cols="12" sm="6">
-            <strong>Review Content:</strong> {{ proposal.reviewContent }}
-          </v-col>
-
-          <!-- Sharing Application -->
-          <v-col cols="12" sm="6">
-            <strong>Share Complete Application:</strong>
-            {{ proposal.shareApplication === 'yes' ? 'Yes' : 'No' }}
+          <!-- Additional Requirements -->
+          <v-col cols="12">
+            <strong>Additional Requirements:</strong>
+            <ul>
+              <li v-for="requirement in proposal.additionalRequirements" :key="requirement">
+                {{ requirement }}
+              </li>
+            </ul>
           </v-col>
         </v-row>
       </v-card-text>
     </v-card>
 
     <v-row class="mt-4">
-      <v-col cols="12"> <strong>Status:</strong> {{ proposal.status }} </v-col>
+      <v-col cols="12">
+        <strong>Status:</strong>
+        <v-chip
+          :color="
+            proposal.status === 'accepted'
+              ? 'green'
+              : proposal.status === 'rejected'
+                ? 'red'
+                : 'blue'
+          "
+          dark
+        >
+          {{ proposal.status }}
+        </v-chip>
+      </v-col>
       <v-col cols="12" v-if="proposal.status === 'rejected'">
         <strong>Rejection Note:</strong> {{ proposal.rejectionNote }}
       </v-col>
@@ -173,12 +189,12 @@ export default {
       const id = this.$route.params.id
       const proposal = store.proposals.find((p) => p.id === id)
       if (proposal) {
-        proposal.status = 'accepted' // Update status
+        proposal.status = 'Accepted - Pending Timeline/Tasklist Confirmation' // Updated status
         proposal.rejectionNote = '' // Clear rejection note if any
         localStorage.setItem('proposals', JSON.stringify(store.proposals)) // Persist changes
       }
       this.isAcceptDialogOpen = false // Close dialog
-      this.$router.push('/admin-dashboard') // Redirect to admin dashboard
+      this.$router.push(`/grant/${id}`) // Redirect to grant details page
     },
     openRejectDialog() {
       this.isRejectDialogOpen = true // Open the rejection dialog
@@ -202,3 +218,31 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.v-card {
+  border-left: 4px solid #d50032; /* UIC Red */
+}
+
+.v-btn {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.v-chip {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.v-chip[color='green'] {
+  background-color: #00843d !important; /* UIC Green */
+}
+
+.v-chip[color='red'] {
+  background-color: #d50032 !important; /* UIC Red */
+}
+
+.v-chip[color='blue'] {
+  background-color: #003da5 !important; /* UIC Blue */
+}
+</style>

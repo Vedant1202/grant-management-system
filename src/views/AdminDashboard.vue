@@ -12,10 +12,23 @@
     ></v-text-field>
 
     <v-data-table :items="filteredProposals" :headers="headers" dense class="elevation-1">
+      <!-- Status Column -->
       <template #item.status="{ item }">
-        <v-chip :color="item.status === 'accepted' ? 'success' : 'error'" dark>
+        <v-chip
+          :color="
+            item.status === 'accepted' ||
+            item.status === 'Accepted - Pending Timeline/Tasklist Confirmation'
+              ? 'success'
+              : 'error'
+          "
+          dark
+        >
           {{ item.status }}
         </v-chip>
+      </template>
+
+      <!-- Actions Column -->
+      <template #item.actions="{ item }">
         <v-btn color="primary" @click="viewProposal(item)">View</v-btn>
       </template>
     </v-data-table>
@@ -30,11 +43,12 @@ export default {
     return {
       search: '', // Search query
       headers: [
-        { text: 'PI Last Name', value: 'piLastName' },
-        { text: 'PI First Name', value: 'piFirstName' },
-        { text: 'Division', value: 'division' },
-        { text: 'Sponsor Due Date', value: 'sponsorDueDate' },
-        { text: 'Status', value: 'status', sortable: false },
+        { title: 'PI Last Name', value: 'piLastName' },
+        { title: 'PI First Name', value: 'piFirstName' },
+        { title: 'Division', value: 'division' },
+        { title: 'Sponsor Due Date', value: 'sponsorDueDate' },
+        { title: 'Status', value: 'status', sortable: false },
+        { title: 'Actions', value: 'actions', sortable: false }, // Explicit Actions column
       ],
     }
   },
@@ -56,7 +70,6 @@ export default {
   methods: {
     viewProposal(proposal) {
       this.$router.push({ name: 'GrantView', params: { id: proposal.id } })
-      // this.$router.push({ name: 'ProposalDetail', params: { id: proposal.id } })
     },
   },
 }

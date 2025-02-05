@@ -155,6 +155,11 @@
         </tr>
       </template>
     </v-data-table>
+    <v-row class="mt-4">
+      <v-col>
+        <v-btn color="success" :disabled="!hasChanges" @click="saveChanges"> Save Changes </v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -219,6 +224,8 @@ export default {
       ],
 
       selectedTemplate: null, // Selected template
+      firstLoad: true, // Tracks whether the first load has already happened
+      selectedTemplate: null, // Selected template
     }
   },
   computed: {
@@ -234,10 +241,22 @@ export default {
     remainingTasks() {
       return this.tasklist.length - this.completedTasks.size
     },
+    hasChanges() {
+      // return (
+      //   JSON.stringify(this.tasklist) !==
+      //   JSON.stringify(this.tasklistStore.getTasklist(this.grantId))
+      // )
+      return true
+    },
   },
   watch: {
     selectedTemplate(value) {
-      console.log('Selected Template Updated:', value)
+      if (this.firstLoad && this.tasklist.length > 0) {
+        console.log('Tasklist already exists. Not applying template on first load.')
+        return // Prevent overriding existing tasklist on first load
+      }
+
+      console.log('Applying template:', value)
       this.applyTemplate()
     },
   },
@@ -245,8 +264,9 @@ export default {
     loadTasklist() {
       this.tasklistStore.loadTasklist(this.grantId) // Load the tasklist for the specific grantId
     },
-    saveTasklist() {
-      this.tasklistStore.saveTasklist(this.grantId, this.tasklist) // Save the tasklist
+    saveChanges() {
+      this.tasklistStore.saveTasklist(this.grantId, this.tasklist) // Save tasklist to store
+      this.$nextTick(() => alert('Tasklist changes saved successfully!')) // Optional feedback
     },
     addOrUpdateTask() {
       if (this.isEditing) {
@@ -333,29 +353,6 @@ export default {
       })
     },
 
-    // Load tasks for the specific grant
-    loadTasks() {
-      const savedTasks = JSON.parse(localStorage.getItem(this.grantId)) || []
-      this.tasklist = savedTasks
-    },
-
-    // Save tasks for the specific grant
-    saveTasks() {
-      localStorage.setItem(this.grantId, JSON.stringify(this.tasklist))
-    },
-
-    saveCompletedTasks() {
-      localStorage.setItem(
-        `completedTasks-${this.grantId}`,
-        JSON.stringify([...this.completedTasks]),
-      )
-    },
-
-    loadCompletedTasks() {
-      const savedTasks = JSON.parse(localStorage.getItem(`completedTasks-${this.grantId}`)) || []
-      this.completedTasks = new Set(savedTasks)
-    },
-
     getTaskKey(task) {
       return `${task.formFile}_${task.section}` // Ensure unique keys
     },
@@ -369,8 +366,14 @@ export default {
     },
   },
   mounted() {
-    this.loadTasklist() // Load the tasklist on component mount
-    this.loadCompletedTasks() // Load completed tasks from localStorage
+    this.loadTasklist() // Load stored tasklist first
+
+    this.$nextTick(() => {
+      if (this.tasklist.length > 0) {
+        console.log('Tasklist exists. Preventing auto template application on first load.')
+        this.firstLoad = false // Prevents template from auto-applying
+      }
+    })
   },
 }
 </script>

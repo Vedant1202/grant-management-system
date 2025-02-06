@@ -13,7 +13,7 @@
     </v-app-bar>
 
     <!-- Main Navigation Drawer -->
-    <v-navigation-drawer app permanent>
+    <v-navigation-drawer :key="sidebarKey" app permanent>
       <v-list>
         <v-list-item>
           <v-list-item-content>
@@ -32,6 +32,19 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+      <!-- Role Switch Dropdown (Visible Only in Dev Mode) -->
+      <v-container v-if="showRoleSwitcher" class="role-switch-container">
+        <v-select
+          v-model="selectedRole"
+          :items="roles"
+          label="Switch Role (Dev only)"
+          dense
+          outlined
+          class="role-switch"
+          @update:modelValue="updateUserRole"
+        ></v-select>
+      </v-container>
     </v-navigation-drawer>
 
     <!-- Notification Sidebar -->
@@ -96,14 +109,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useUserStore } from './stores/user'
 import { useNotificationStore } from '@/stores/notifications'
 
 // User Store
 const userStore = useUserStore()
 const user = userStore.user
-const allowedSidebarItems = userStore.allowedSidebarItems
+const allowedSidebarItems = computed(() => userStore.allowedSidebarItems)
+
+// Role Switching Logic
+const roles = ['Grant Admin', 'Grant Manager', 'PI', 'Proxy PI', 'Team Member']
+const selectedRole = ref(userStore.user.role)
+const sidebarKey = ref(0) // Key to force sidebar re-render
+
+// Function to update user role and refresh state
+const updateUserRole = (newRole) => {
+  userStore.setUser(userStore.user.email, newRole) // Update Pinia store
+}
+
+// Toggle state for the role switcher (Enable for dev)
+const showRoleSwitcher = ref(true)
 
 // Notifications
 const notificationDrawer = ref(false)
@@ -239,5 +265,18 @@ const timeAgo = (date) => {
   background-color: #d50032; /* UIC Red */
   border-radius: 50%;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.role-switch-container {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.role-switch {
+  max-width: 220px;
+  background: #f5f5f5;
+  border-radius: 50px;
+  padding: 2px 12px;
 }
 </style>

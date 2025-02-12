@@ -208,6 +208,34 @@
                     </ul>
                   </v-card-text>
                 </v-card>
+
+  <!-- Clinical Trial Consultation Question -->
+  <v-card class="clinical-trial-info">
+    <v-card-title class="info-title">
+      Would you like to consult with someone regarding the Clinical Trials/Human Subjects section in ASSIST?
+    </v-card-title>
+    <v-card-text>
+      <v-radio-group v-model="formData.consultClinicalTrials">
+        <v-radio label="Yes" value="yes"></v-radio>
+        <v-radio label="No" value="no"></v-radio>
+      </v-radio-group>
+    </v-card-text>
+  </v-card>
+
+  <!-- Conditional Follow-up Question for DOM CTU -->
+  <template v-if="formData.consultClinicalTrials === 'yes'">
+    <v-card class="clinical-trial-info">
+      <v-card-title class="info-title">
+        Would you like to consult with the DOM CTU?
+      </v-card-title>
+      <v-card-text>
+        <v-radio-group v-model="formData.consultDOMCTU">
+          <v-radio label="Yes" value="yes"></v-radio>
+          <v-radio label="No" value="no"></v-radio>
+        </v-radio-group>
+      </v-card-text>
+    </v-card>
+  </template>
               </template>
 
               <!-- Clinical Trial Question -->
@@ -850,4 +878,29 @@ p {
 .add-btn:hover {
   background-color: #b56e00 !important; /* Darker on Hover */
 }
+
+/* Ensure text wraps and prevents ellipsis truncation */
+.v-card-title,
+.v-card-text,
+.v-btn {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word;
+}
+
+/* Ensure radio button labels and selects wrap properly */
+.v-radio-group,
+.v-select {
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+/* Ensure help notes and useful links wrap properly */
+.useful-links ul li {
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow: visible !important;
+}
+
 </style>

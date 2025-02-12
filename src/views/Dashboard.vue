@@ -76,13 +76,15 @@ export default {
     },
     filteredGrants() {
       const query = this.search.toLowerCase()
-      return this.grants.filter((grant) => {
-        const grantProposalTitle = grant.proposedTitle || grant.projectTitle
-        return (
-          (grantProposalTitle || '').toLowerCase().includes(query) || // Search by proposed title
-          (grant.status || '').toLowerCase().includes(query)
-        ) // Search by status
-      })
+      return this.grants
+        .filter((grant) => {
+          const grantProposalTitle = grant.proposedTitle || grant.projectTitle
+          return (
+            (grantProposalTitle || '').toLowerCase().includes(query) || // Search by proposed title
+            (grant.status || '').toLowerCase().includes(query) // Search by status
+          )
+        })
+        .reverse() // Reverse order to show latest additions first
     },
   },
   methods: {

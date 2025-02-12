@@ -47,15 +47,17 @@ export default {
     filteredProposals() {
       // Filter proposals based on search query
       const query = this.search.toLowerCase()
-      return this.proposals.filter(
-        (proposal) =>
-          proposal.piLastName.toLowerCase().includes(query) ||
-          proposal.piFirstName.toLowerCase().includes(query) ||
-          proposal.division.toLowerCase().includes(query) ||
-          proposal.sponsorDueDate.toLowerCase().includes(query) ||
-          proposal.submissionType.toLowerCase().includes(query) ||
-          proposal.grantMechanism.toLowerCase().includes(query),
-      )
+      return this.proposals
+        .filter(
+          (proposal) =>
+            proposal.piLastName.toLowerCase().includes(query) ||
+            proposal.piFirstName.toLowerCase().includes(query) ||
+            proposal.division.toLowerCase().includes(query) ||
+            proposal.sponsorDueDate.toLowerCase().includes(query) ||
+            proposal.submissionType.toLowerCase().includes(query) ||
+            proposal.grantMechanism.toLowerCase().includes(query),
+        )
+        .reverse() // Reverse order to show latest additions first
     },
   },
   methods: {

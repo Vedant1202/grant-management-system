@@ -21,7 +21,7 @@
         <v-card-text>
           <v-checkbox
             v-model="tempAcknowledgePI"
-            label="I acknowledge the timeline/tasklist done by the Grant Manager"
+            label="I agree with the timeline and task list for this proposal."
             @change="confirmAcknowledgment"
           ></v-checkbox>
         </v-card-text>

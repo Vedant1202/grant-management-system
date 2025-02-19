@@ -26,7 +26,9 @@
         <template #item.status="{ item }">
           <v-chip
             :color="
-              item.status === 'accepted'
+              item.status === 'accepted' ||
+              item.status === 'Accepted' ||
+              item.status === 'Accepted - Pending Timeline/Tasklist Confirmation'
                 ? 'success'
                 : item.status === 'pending'
                   ? 'warning'

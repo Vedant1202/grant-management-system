@@ -209,33 +209,34 @@
                   </v-card-text>
                 </v-card>
 
-  <!-- Clinical Trial Consultation Question -->
-  <v-card class="clinical-trial-info">
-    <v-card-title class="info-title">
-      Would you like to consult with someone regarding the Clinical Trials/Human Subjects section in ASSIST?
-    </v-card-title>
-    <v-card-text>
-      <v-radio-group v-model="formData.consultClinicalTrials">
-        <v-radio label="Yes" value="yes"></v-radio>
-        <v-radio label="No" value="no"></v-radio>
-      </v-radio-group>
-    </v-card-text>
-  </v-card>
+                <!-- Clinical Trial Consultation Question -->
+                <v-card class="clinical-trial-info">
+                  <v-card-title class="info-title">
+                    Would you like to consult with someone regarding the Clinical Trials/Human
+                    Subjects section in ASSIST?
+                  </v-card-title>
+                  <v-card-text>
+                    <v-radio-group v-model="formData.consultClinicalTrials">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
 
-  <!-- Conditional Follow-up Question for DOM CTU -->
-  <template v-if="formData.consultClinicalTrials === 'yes'">
-    <v-card class="clinical-trial-info">
-      <v-card-title class="info-title">
-        Would you like to consult with the DOM CTU?
-      </v-card-title>
-      <v-card-text>
-        <v-radio-group v-model="formData.consultDOMCTU">
-          <v-radio label="Yes" value="yes"></v-radio>
-          <v-radio label="No" value="no"></v-radio>
-        </v-radio-group>
-      </v-card-text>
-    </v-card>
-  </template>
+                <!-- Conditional Follow-up Question for DOM CTU -->
+                <template v-if="formData.consultClinicalTrials === 'yes'">
+                  <v-card class="clinical-trial-info">
+                    <v-card-title class="info-title">
+                      Would you like to consult with the DOM CTU?
+                    </v-card-title>
+                    <v-card-text>
+                      <v-radio-group v-model="formData.consultDOMCTU">
+                        <v-radio label="Yes" value="yes"></v-radio>
+                        <v-radio label="No" value="no"></v-radio>
+                      </v-radio-group>
+                    </v-card-text>
+                  </v-card>
+                </template>
               </template>
 
               <!-- Clinical Trial Question -->
@@ -421,8 +422,6 @@
               </li>
             </ul>
           </v-card-text>
-        </v-card>
-        <v-card class="useful-links mt-6">
           <v-card-title class="subheading"> Other Useful Links </v-card-title>
           <v-card-text>
             <ul>
@@ -441,6 +440,10 @@
             </ul>
           </v-card-text>
         </v-card>
+        <!-- <v-card class="useful-links mt-6">
+          <v-card-title class="subheading"> Other Useful Links </v-card-title>
+
+        </v-card> -->
       </v-col>
     </v-row>
   </v-container>
@@ -902,5 +905,4 @@ p {
   word-wrap: break-word;
   overflow: visible !important;
 }
-
 </style>

@@ -280,3 +280,9 @@ const timeAgo = (date) => {
   padding: 2px 12px;
 }
 </style>
+
+<style>
+.label-status {
+  text-transform: capitalize !important;
+}
+</style>

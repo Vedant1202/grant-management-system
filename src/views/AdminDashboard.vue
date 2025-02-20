@@ -11,13 +11,18 @@
       class="mb-4"
     ></v-text-field>
 
-    <v-data-table :items="filteredProposals" :headers="headers" dense class="elevation-1">
+    <v-data-table
+      :items="filteredProposals"
+      :headers="headers"
+      dense
+      class="elevation-1 label-status"
+    >
       <!-- Status Column -->
       <template #item.status="{ item }">
         <v-chip
+          class="label-status"
           :color="
-            item.status === 'accepted' ||
-            item.status === 'Accepted - Pending Timeline/Tasklist Confirmation'
+            item.status === 'accepted' || item.status === 'accepted - pending tasklist and timeline'
               ? 'success'
               : 'error'
           "
@@ -76,3 +81,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.label-status {
+  text-transform: capitalize !important;
+}
+</style>

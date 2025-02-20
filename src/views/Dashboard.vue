@@ -25,10 +25,11 @@
         </template>
         <template #item.status="{ item }">
           <v-chip
+            class="label-status"
             :color="
               item.status === 'accepted' ||
               item.status === 'Accepted' ||
-              item.status === 'Accepted - Pending Timeline/Tasklist Confirmation'
+              item.status === 'accepted - pending tasklist and timeline'
                 ? 'success'
                 : item.status === 'pending'
                   ? 'warning'
@@ -110,5 +111,9 @@ export default {
 
 .orange--text {
   color: #fb8c00; /* Orange for in progress */
+}
+
+.label-status {
+  text-transform: capitalize !important;
 }
 </style>

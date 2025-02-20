@@ -5,10 +5,7 @@
     >
 
     <v-btn
-      v-if="
-        isGrantAdminOrManager &&
-        grant.status === 'Accepted - Pending Timeline/Tasklist Confirmation'
-      "
+      v-if="isGrantAdminOrManager && grant.status === 'accepted - pending tasklist and timeline'"
       class="approve-button ml-5 mb-2"
       color="success"
       @click="confirmApproval"
@@ -152,7 +149,7 @@ export default {
       if (
         (this.user.role === 'Grant Admin' || this.user.role === 'Grant Manager') &&
         (this.grant.status === 'accepted' ||
-          this.grant.status === 'Accepted - Pending Timeline/Tasklist Confirmation')
+          this.grant.status === 'accepted - pending tasklist and timeline')
       ) {
         return true
       } else if (this.grant.status === 'accepted') {
@@ -212,6 +209,9 @@ export default {
   },
   methods: {
     formatFieldName(key) {
+      if (key === 'rejectionNote') {
+        return "Grant Manager's note for modifications required"
+      }
       return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
     },
     formatFieldValue(key, value) {
@@ -227,9 +227,9 @@ export default {
       return value ? moment(value, 'HH:mm').format('hh:mm A') : 'N/A'
     },
     statusColor(status) {
-      return status === 'accepted' || status === 'Accepted - Pending Timeline/Tasklist Confirmation'
+      return status === 'accepted' || status === 'accepted - pending tasklist and timeline'
         ? '#008000'
-        : status === 'rejected'
+        : status === 'needs modification'
           ? '#d50032'
           : '#FFA500'
     },

@@ -89,7 +89,7 @@
           :color="
             proposal.status === 'accepted'
               ? 'green'
-              : proposal.status === 'rejected'
+              : proposal.status === 'needs modification'
                 ? 'red'
                 : 'blue'
           "
@@ -98,8 +98,8 @@
           {{ proposal.status }}
         </v-chip>
       </v-col>
-      <v-col cols="12" v-if="proposal.status === 'rejected'">
-        <strong>Rejection Note:</strong> {{ proposal.rejectionNote }}
+      <v-col cols="12" v-if="proposal.status === 'needs modification'">
+        <strong>Grant Manager note for needing modification:</strong> {{ proposal.rejectionNote }}
       </v-col>
     </v-row>
 
@@ -114,7 +114,7 @@
       <!-- Reject Button -->
       <v-col>
         <v-btn color="error" @click="openRejectDialog" :disabled="proposal.status === 'rejected'">
-          Mark as Rejected
+          Mark as 'Needs Modifications'
         </v-btn>
       </v-col>
     </v-row>
@@ -137,11 +137,11 @@
   <!-- Reject Dialog -->
   <v-dialog v-model="isRejectDialogOpen" max-width="500px">
     <v-card>
-      <v-card-title>Reject Proposal</v-card-title>
+      <v-card-title>Mark as Needs Modifications to Proposal</v-card-title>
       <v-card-text>
         <v-textarea
           v-model="rejectionNote"
-          label="Specify the reason for rejection and how to correct"
+          label="Specify the reason for needing modifications and how to correct"
           rows="4"
           outlined
           required
@@ -189,7 +189,7 @@ export default {
       const id = this.$route.params.id
       const proposal = store.proposals.find((p) => p.id === id)
       if (proposal) {
-        proposal.status = 'Accepted - Pending Timeline/Tasklist Confirmation' // Updated status
+        proposal.status = 'accepted - pending tasklist and timeline' // Updated status
         proposal.rejectionNote = '' // Clear rejection note if any
         localStorage.setItem('proposals', JSON.stringify(store.proposals)) // Persist changes
       }
@@ -208,7 +208,7 @@ export default {
       const id = this.$route.params.id
       const proposal = store.proposals.find((p) => p.id === id)
       if (proposal) {
-        proposal.status = 'rejected' // Update status
+        proposal.status = 'needs modification' // Update status
         proposal.rejectionNote = this.rejectionNote // Save rejection note
         localStorage.setItem('proposals', JSON.stringify(store.proposals)) // Persist changes
       }

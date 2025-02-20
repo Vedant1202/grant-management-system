@@ -1,0 +1,296 @@
+{
+  "user": { "user": { "email": "admin@example.com", "role": "PI" } },
+  "notificationStore": {
+    "notifications": [
+      {
+        "id": 1,
+        "title": "Proposal Accepted",
+        "message": "Your grant proposal has been approved.",
+        "link": "/grants/123",
+        "state": "unread",
+        "createdAt": "2025-02-20T18:22:42.907Z"
+      },
+      {
+        "id": 2,
+        "title": "Proposal Accepted",
+        "message": "unread Your grant proposal has been approved.",
+        "link": "/grants/123",
+        "state": "read",
+        "createdAt": "2025-02-20T18:22:42.907Z"
+      }
+    ]
+  },
+  "users": {
+    "users": [
+      {
+        "id": 1,
+        "email": "alice@example.com",
+        "role": "Grant Manager",
+        "grants": [],
+        "piId": null
+      },
+      {
+        "id": 2,
+        "email": "bob@example.com",
+        "role": "PI",
+        "grants": [1, 2],
+        "piId": null
+      },
+      {
+        "id": 3,
+        "email": "charlie@example.com",
+        "role": "Proxy PI",
+        "grants": [1],
+        "piId": 2
+      },
+      {
+        "id": 4,
+        "email": "dana@example.com",
+        "role": "Team Member",
+        "grants": [1],
+        "piId": 2
+      }
+    ],
+    "grants": [
+      { "id": 1, "title": "Cancer Research" },
+      { "id": 2, "title": "Genetics Study" },
+      { "id": 3, "title": "Immunology Initiative" }
+    ],
+    "pis": [{ "id": 2, "email": "bob@example.com" }]
+  },
+  "grantProposals": {
+    "proposals": [
+      {
+        "piFirstName": "Alice",
+        "piLastName": "Smith",
+        "piEmail": "alice.smith@mail.com",
+        "piDivision": "586008",
+        "sponsorDeadlineDate": "2026-03-10T06:00:00.000Z",
+        "sponsorDeadlineTime": "15:00",
+        "proposalType": "New",
+        "fundingAgency": "HealthResearch",
+        "isSubaward": "no",
+        "submissionBy": "Department",
+        "submissionType": "Other",
+        "fundingOpportunity": "www.healthresearchfund.com",
+        "temporaryAppId": "xyz123",
+        "activityType": "Basic Research",
+        "isClinicalTrial": "no",
+        "projectStartDate": "4/15/25",
+        "projectEndDate": "4/15/27",
+        "projectTitle": "Novel Biomarker Study",
+        "keyPersonnel": [{ "name": "Dr Z", "email": "z@abc.com", "institution": "Medicine" }],
+        "hasSubcontracts": "no",
+        "subcontracts": [],
+        "additionalRequirements": ["Human Subjects"],
+        "hasConflictOfInterest": "no",
+        "id": "1738567774020",
+        "status": "pending",
+        "completionStatus": "not started",
+        "rejectionNote": ""
+      },
+      {
+        "piFirstName": "Robert",
+        "piLastName": "Johnson",
+        "piEmail": "robert.johnson@mail.com",
+        "piDivision": "586009",
+        "sponsorDeadlineDate": "2026-05-22T06:00:00.000Z",
+        "sponsorDeadlineTime": "10:00",
+        "proposalType": "Renewal",
+        "fundingAgency": "National Science Foundation",
+        "isSubaward": "yes",
+        "primeInstitution": "XYZ University",
+        "primeInstitutionContact": "XYZ Contact",
+        "primeInstitutionContactEmail": "contact@xyzuniv.com",
+        "submissionBy": "Central Office",
+        "submissionType": "Grants.gov",
+        "fundingOpportunity": "www.nsfopportunity.com",
+        "temporaryAppId": "lmnopq",
+        "activityType": "Applied Research",
+        "isClinicalTrial": "no",
+        "projectStartDate": "7/1/25",
+        "projectEndDate": "6/30/27",
+        "projectTitle": "Renewable Energy Storage",
+        "keyPersonnel": [{ "name": "Dr K", "email": "k@xyz.com", "institution": "Engineering" }],
+        "hasSubcontracts": "yes",
+        "subcontracts": [
+          {
+            "subcontractInstitution": "Tech Institute",
+            "subcontractSitePI": "Dr L",
+            "subcontractContactName": "Tech Contact",
+            "subcontractContactEmail": "tech@institute.com"
+          }
+        ],
+        "additionalRequirements": ["Human Subjects", "Animals"],
+        "hasConflictOfInterest": "no",
+        "id": "1738567774021",
+        "status": "pending",
+        "completionStatus": "in progress",
+        "rejectionNote": ""
+      },
+      {
+        "piFirstName": "Emma",
+        "piLastName": "Williams",
+        "piEmail": "emma.williams@mail.com",
+        "piDivision": "586007",
+        "sponsorDeadlineDate": "2026-02-18T06:00:00.000Z",
+        "sponsorDeadlineTime": "11:30",
+        "proposalType": "Resubmission",
+        "fundingAgency": "DOD",
+        "isSubaward": "no",
+        "submissionBy": "Department",
+        "submissionType": "Other",
+        "fundingOpportunity": "www.dodresearchfund.com",
+        "temporaryAppId": "qrstuv",
+        "activityType": "Clinical Trial",
+        "isClinicalTrial": "yes",
+        "projectStartDate": "5/12/25",
+        "projectEndDate": "5/12/28",
+        "projectTitle": "Military PTSD Study",
+        "keyPersonnel": [{ "name": "Dr C", "email": "c@abc.com", "institution": "Psychology" }],
+        "hasSubcontracts": "no",
+        "subcontracts": [],
+        "additionalRequirements": ["Human Subjects"],
+        "hasConflictOfInterest": "unsure",
+        "id": "1738567774022",
+        "status": "accepted",
+        "completionStatus": "completed",
+        "rejectionNote": ""
+      },
+      {
+        "piFirstName": "David",
+        "piLastName": "Miller",
+        "piEmail": "david.miller@mail.com",
+        "piDivision": "586010",
+        "sponsorDeadlineDate": "2026-06-30T06:00:00.000Z",
+        "sponsorDeadlineTime": "09:45",
+        "proposalType": "New",
+        "fundingAgency": "NASA",
+        "isSubaward": "no",
+        "submissionBy": "Central Office",
+        "submissionType": "Grants.gov",
+        "fundingOpportunity": "www.nasafunding.com",
+        "temporaryAppId": "abcdef",
+        "activityType": "Exploratory Research",
+        "isClinicalTrial": "no",
+        "projectStartDate": "9/1/25",
+        "projectEndDate": "8/31/29",
+        "projectTitle": "Exoplanet Atmospheric Study",
+        "keyPersonnel": [
+          {
+            "name": "Dr T",
+            "email": "t@nasa.com",
+            "institution": "Astrophysics"
+          }
+        ],
+        "hasSubcontracts": "yes",
+        "subcontracts": [
+          {
+            "subcontractInstitution": "Space Research Lab",
+            "subcontractSitePI": "Dr B",
+            "subcontractContactName": "Lab Contact",
+            "subcontractContactEmail": "contact@spacelab.com"
+          }
+        ],
+        "additionalRequirements": ["Recombinant DNA/Infectious Agents"],
+        "hasConflictOfInterest": "no",
+        "id": "1738567774023",
+        "status": "accepted - pending tasklist and timeline",
+        "completionStatus": "pending tasklist",
+        "rejectionNote": ""
+      },
+      {
+        "piFirstName": "Sophia",
+        "piLastName": "Brown",
+        "piEmail": "sophia.brown@mail.com",
+        "piDivision": "586011",
+        "sponsorDeadlineDate": "2026-04-21T06:00:00.000Z",
+        "sponsorDeadlineTime": "14:15",
+        "proposalType": "Revision",
+        "fundingAgency": "NIH",
+        "isSubaward": "yes",
+        "primeInstitution": "University of Medicine",
+        "primeInstitutionContact": "Dr E",
+        "primeInstitutionContactEmail": "contact@universitymed.com",
+        "submissionBy": "Department",
+        "submissionType": "Grants.gov",
+        "fundingOpportunity": "www.nihfunding.com",
+        "temporaryAppId": "ghijkl",
+        "activityType": "Public Health",
+        "isClinicalTrial": "no",
+        "projectStartDate": "6/5/25",
+        "projectEndDate": "6/5/28",
+        "projectTitle": "Community Health Study",
+        "keyPersonnel": [
+          {
+            "name": "Dr F",
+            "email": "f@meduni.com",
+            "institution": "Public Health"
+          }
+        ],
+        "hasSubcontracts": "no",
+        "subcontracts": [],
+        "additionalRequirements": ["Human Subjects"],
+        "hasConflictOfInterest": "yes",
+        "id": "1738567774024",
+        "status": "needs modifications",
+        "completionStatus": "requires revision",
+        "rejectionNote": "Clarify methodology and budget allocation."
+      },
+      {
+        "piFirstName": "John",
+        "piLastName": "Doe",
+        "piEmail": "johndoe@mail.com",
+        "piDivision": "586006",
+        "sponsorDeadlineDate": "2026-01-16T06:00:00.000Z",
+        "sponsorDeadlineTime": "13:00",
+        "proposalType": "New",
+        "fundingAgency": "DemoFunding",
+        "isSubaward": "yes",
+        "primeInstitution": "ABC",
+        "primeInstitutionContact": "ABC Contact",
+        "primeInstitutionContactEmail": "hello@abc.com",
+        "submissionBy": "Central Office",
+        "submissionType": "Grants.gov",
+        "fundingOpportunity": "www.fundingopportunitysample.com",
+        "temporaryAppId": "efghijk",
+        "activityType": "Clinical Trial",
+        "isClinicalTrial": "",
+        "consultClinicalTrials": "",
+        "consultDOMCTU": "",
+        "projectStartDate": "2/10/25",
+        "projectEndDate": "2/10/26",
+        "projectTitle": "Sample Submission New Format",
+        "keyPersonnel": [
+          { "name": "Ms X", "email": "x@abc.com", "institution": "Medicine" },
+          { "name": "Mr Y", "email": "y@abc.com", "institution": "Engineering" }
+        ],
+        "hasSubcontracts": "yes",
+        "subcontracts": [
+          {
+            "subcontractInstitution": "MNO ",
+            "subcontractSitePI": "Mr D",
+            "subcontractContactName": "MNO Contact",
+            "subcontractContactEmail": "hello@mno.com"
+          },
+          {
+            "subcontractInstitution": "IIT",
+            "subcontractSitePI": "Ms J",
+            "subcontractContactName": "IIT Contact",
+            "subcontractContactEmail": "hello@iit.com"
+          }
+        ],
+        "additionalRequirements": [
+          "Animals",
+          "Human Subjects",
+          "Recombinant DNA/Infectious Agents"
+        ],
+        "hasConflictOfInterest": "unsure",
+        "id": "1738567774018",
+        "status": "pending",
+        "completionStatus": "in progress",
+        "rejectionNote": ""
+      }
+    ]
+  }
+}

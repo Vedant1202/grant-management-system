@@ -20,7 +20,7 @@ export const useGrantProposalsStore = defineStore('grantProposals', {
       const proposal = this.proposals.find((p) => p.id === id)
       if (proposal) {
         proposal.status = status
-        if (status === 'rejected') {
+        if (status === 'needs modification') {
           proposal.rejectionNote = note // Save rejection note
         }
         localStorage.setItem('proposals', JSON.stringify(this.proposals)) // Persist changes
@@ -30,8 +30,8 @@ export const useGrantProposalsStore = defineStore('grantProposals', {
       return this.proposals.filter(
         (p) =>
           p.status === 'accepted' ||
-          p?.status === 'Accepted - Pending Timeline/Tasklist Confirmation' ||
-          p.status === 'rejected',
+          p?.status === 'accepted - pending tasklist and timeline' ||
+          p.status === 'needs modification',
       )
     },
     getPendingProposals() {

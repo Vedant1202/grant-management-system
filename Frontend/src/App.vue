@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app v-if="!(showLoginPage && !isLoggedIn)">
     <!-- AppBar -->
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>{{ 'Grant Management System' }}</v-toolbar-title>
@@ -106,12 +106,23 @@
       <router-view></router-view>
     </v-main>
   </v-app>
+  <!-- Show HomeView if user is NOT logged in and `showLoginPage` is true -->
+  <HomeView v-else />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useUserStore } from './stores/user'
 import { useNotificationStore } from '@/stores/notifications'
+
+import HomeView from '@/views/HomeView.vue'
+
+// Toggle switch to enforce login functionality
+const showLoginPage = ref(true) // Change this to `false` to always show the default pages
+
+// Check if user is logged in
+const isLoggedIn = computed(() => !userStore.user.email)
+
 
 // User Store
 const userStore = useUserStore()

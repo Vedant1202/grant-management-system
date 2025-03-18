@@ -1,0 +1,1202 @@
+[
+  {
+    "_id": {
+      "$oid": "67d77e0aa5aee3d672aaf44b"
+    },
+    "piFirstName": "Hello ",
+    "piLastName": "Test",
+    "piEmail": "test@mail.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "accepted",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T03:27:15.339Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79660914ab9e3a2369e6d"
+    },
+    "piFirstName": "Hello 2 ",
+    "piLastName": "Test",
+    "piEmail": "test@mail.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 2",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "pending",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79677914ab9e3a2369e6e"
+    },
+    "piFirstName": "Hello 3",
+    "piLastName": "Test",
+    "piEmail": "test@mail.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 3",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "pending",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79c9e914ab9e3a2369e6f"
+    },
+    "piFirstName": "Hello 4",
+    "piLastName": "Test",
+    "piEmail": "pi@example.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 4",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "pending",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79cac914ab9e3a2369e70"
+    },
+    "piFirstName": "Hello 5",
+    "piLastName": "Test",
+    "piEmail": "pi@example.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 5",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "pending",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79cb8914ab9e3a2369e71"
+    },
+    "piFirstName": "Hello 6",
+    "piLastName": "Test",
+    "piEmail": "pi@example.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 6",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "pending",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79cfc914ab9e3a2369e72"
+    },
+    "piFirstName": "Hello 7",
+    "piLastName": "Test",
+    "piEmail": "pi@example.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-03-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 7",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "needs modification",
+    "completionStatus": "in progress",
+    "rejectionNote": "Needs more details in proposal type",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-17T04:01:58.754Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d79d07914ab9e3a2369e73"
+    },
+    "piFirstName": "Hello 8",
+    "piLastName": "Test",
+    "piEmail": "pi@example.com",
+    "piDivision": "586004",
+    "sponsorDeadlineDate": {
+      "$date": "2025-10-18T05:00:00.000Z"
+    },
+    "sponsorDeadlineTime": "12:00pm",
+    "proposalType": "New",
+    "fundingAgency": "ABCD",
+    "isSubaward": "yes",
+    "primeInstitution": "Hello",
+    "primeInstitutionContact": "World ",
+    "primeInstitutionContactEmail": "email",
+    "submissionBy": "Central Office",
+    "submissionType": "NIH Assist",
+    "fundingOpportunity": "someurl.com",
+    "temporaryAppId": "1234",
+    "activityType": "Clinical Trial",
+    "isClinicalTrial": "",
+    "consultClinicalTrials": "no",
+    "consultDOMCTU": "yes",
+    "projectStartDate": "12/02/2006",
+    "projectEndDate": "12/02/2026",
+    "projectTitle": "First test with backend 8",
+    "keyPersonnel": [
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1234",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44c"
+        }
+      },
+      {
+        "name": "abc",
+        "email": "@mail.com",
+        "institution": "1235",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44d"
+        }
+      }
+    ],
+    "hasSubcontracts": "yes",
+    "subcontracts": [
+      {
+        "subcontractInstitution": "Hello",
+        "subcontractSitePI": "PI",
+        "subcontractContactName": "Contact",
+        "subcontractContactEmail": "email",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44e"
+        }
+      },
+      {
+        "subcontractInstitution": "World",
+        "subcontractSitePI": "PI 2",
+        "subcontractContactName": "Contact 2",
+        "subcontractContactEmail": "email 2",
+        "_id": {
+          "$oid": "67d77e0aa5aee3d672aaf44f"
+        }
+      }
+    ],
+    "additionalRequirements": [
+      "UIC Hospital Clinics/MRI Center",
+      "Recombinant DNA/Infectious Agents",
+      "Animals",
+      "Human Subjects"
+    ],
+    "hasConflictOfInterest": "unsure",
+    "status": "accepted",
+    "completionStatus": "in progress",
+    "rejectionNote": "",
+    "createdAt": {
+      "$date": "2025-03-17T01:42:34.158Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-18T18:08:49.801Z"
+    },
+    "__v": 0,
+    "additionalData": {
+      "selectedTemplate": "NIH R Tasklist",
+      "timeline": [
+        {
+          "date": "2025-10-13",
+          "description": "NIH Sponsor deadline",
+          "responsibleParty": "OSP",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-10-09",
+          "description": "UIC OSP deadline",
+          "responsibleParty": "Research Admin",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-10-09",
+          "description": "Final review of submission in ASSIST",
+          "responsibleParty": "PI",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-10-09",
+          "description": "All documents uploaded in ASSIST",
+          "responsibleParty": "Research Admin",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-09-29",
+          "description": "EPAF routed",
+          "responsibleParty": "Research Admin",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-09-29",
+          "description": "FINAL Budget",
+          "responsibleParty": "Research Admin",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-09-29",
+          "description": "ALL FINAL subaward documents due to UIC",
+          "responsibleParty": "Subawardee (if subaward indicated on Intent to submit form)",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-09-15",
+          "description": "Subaward first budget draft Internal deadline",
+          "responsibleParty": "Subawardee (if subaward indicated on Intent to submit form)",
+          "isMajor": false,
+          "completed": false
+        },
+        {
+          "date": "2025-09-08",
+          "description": "UIC Subrecipient request email",
+          "responsibleParty": "Research Admin (if subaward indicated on Intent to submit form)",
+          "isMajor": false,
+          "completed": false
+        }
+      ],
+      "selectedTemplateTimeline": "DOM Default Timeline",
+      "selectedTemplateTaskList": "NIH R Tasklist",
+      "tasklist": [
+        {
+          "Form/File": "SF424(R&R) Project/Performance Site Locations",
+          "Section": "",
+          "Component": "Sites",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031753
+        },
+        {
+          "Form/File": "SF424(R&R) Other Project Information",
+          "Section": "",
+          "Component": "Project Summary/Abstract (30 lines)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031598
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Project Narrative (3 sentences)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032014
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Bibliography & Refs cited",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032297
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Facilities and Other Resources",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031950
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Equipment",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031931
+        },
+        {
+          "Form/File": "SF424(R&R) Senior/Key Person Profile",
+          "Section": "",
+          "Component": "Biosketches for key personnel: please include in the following order as applicable",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031669
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Contact PI MPI Co-I Other key personnel",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032068
+        },
+        {
+          "Form/File": "R&R Budget",
+          "Section": "",
+          "Component": "Budget",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031973
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Budget Justification:",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032346
+        },
+        {
+          "Form/File": "R&R Subaward Budget",
+          "Section": "",
+          "Component": "Consortium insitution(s):",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032110
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031783
+        },
+        {
+          "Form/File": "PHS 398 Cover Page Supplement",
+          "Section": "",
+          "Component": "",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031913
+        },
+        {
+          "Form/File": "PHS 398 Research Plan Form",
+          "Section": "",
+          "Component": "Introduction to Application (For Resubmission and Revision Application) - 1 page",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032173
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Specific Aims -1 page",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031697
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Research Strategy -(12 pages for R01, R21/R33 etc.; 6 pages for R03, R35, R36, etc.)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032120
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Progress Report Publication List (For Renewal)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031911
+        },
+        {
+          "Form/File": "",
+          "Section": "Other Plan(s)",
+          "Component": "Data Management and Sharing Plan",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031905
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Consortium/Contractual Arrangements (if applicable)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032116
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Vertebrate Animals (if applicable)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032198
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Multiple PD/PI Leadership Plan (if applicable)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032361
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Letters of Support (if applicable)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031992
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Resource Sharing Plan (brief 1-paragraph description)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032402
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Appendix",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032171
+        },
+        {
+          "Form/File": "PHS Human Subjects and Clinical Trials Information Form (no page limits for any attachments in this form)  Complete Section 1-3 if non-clinical trial; Complete all sections if clinical trial.",
+          "Section": "Section 1 – Basic Information",
+          "Component": "Study Title (text; 600 characters) Clinical Trial Questionnaire",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032460
+        },
+        {
+          "Form/File": "",
+          "Section": "Section 2 - Study Population Characteristics",
+          "Component": "Eligibility Criteria (text; 15,000 characters max)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031977
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Inclusion of Individuals Across the Lifespan (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032389
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Inclusion of Women, Minorities (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032535
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Targeted/Planned Enrollment Table",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032320
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Recruitment and Retention Plan (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032309
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Study Timeline (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032411
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Enrollment of First Subject",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031648
+        },
+        {
+          "Form/File": "",
+          "Section": "Section 3 - Protection and Monitoring Plans",
+          "Component": "Protection of Human Subjects (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032257
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Single IRB plan for multi-site study",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032457
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Data and Safety Monitoring Plan (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032311
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Overall Structure of the Study Team (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032546
+        },
+        {
+          "Form/File": "",
+          "Section": "Section 4 - Protocol Synopsis",
+          "Component": "Narrative Study Description (text; 32,000 characters max)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032510
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Interventions Description (text; name, 200 characters max; description, 1,000 characters max; can include up to 20 interventions)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032549
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Measures (999 characters max per measure)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032357
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Statistical Design and Power (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320032537
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Subject Participation Duration (text; 255 characters max)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031890
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Is this an applicable clinical trial under FDAAA?",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031659
+        },
+        {
+          "Form/File": "",
+          "Section": "",
+          "Component": "Dissemination Plan (PDF)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031888
+        },
+        {
+          "Form/File": "",
+          "Section": "Section 5 – Other Clinical Trial-related Attachments",
+          "Component": "Milestone Plan (The filename \"Milestone Plan.pdf\" must be used, if applicable)",
+          "Person Responsible": "",
+          "Date Due": "",
+          "Status/Comments": "",
+          "Final file location": "",
+          "id": 1742320031782
+        }
+      ]
+    }
+  }
+]

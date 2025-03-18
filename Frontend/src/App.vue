@@ -121,8 +121,7 @@ import HomeView from '@/views/HomeView.vue'
 const showLoginPage = ref(true) // Change this to `false` to always show the default pages
 
 // Check if user is logged in
-const isLoggedIn = computed(() => !userStore.user.email)
-
+const isLoggedIn = computed(() => !!userStore.user.email)
 
 // User Store
 const userStore = useUserStore()

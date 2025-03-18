@@ -55,7 +55,11 @@ const GrantSchema = new mongoose.Schema(
 
     hasConflictOfInterest: { type: String, enum: ['yes', 'no', 'unsure'], required: true },
 
-    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'needs modification', 'accepted - pending meeting with GM'],
+      default: 'pending',
+    },
     completionStatus: {
       type: String,
       enum: ['not started', 'in progress', 'completed'],

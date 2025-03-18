@@ -5,7 +5,11 @@
     >
 
     <v-btn
-      v-if="isGrantAdminOrManager && grant.status === 'accepted - pending tasklist and timeline'"
+      v-if="
+        isGrantAdminOrManager &&
+        grant &&
+        grant.status === 'accepted - pending tasklist and timeline'
+      "
       class="approve-button ml-5 mb-2"
       color="success"
       @click="confirmApproval"
@@ -13,7 +17,7 @@
       Approve and Send to PI
     </v-btn>
 
-    <v-container v-if="isPI && grant.status === 'accepted' && !grant.ackPI">
+    <v-container v-if="grant && isPI && grant.status === 'accepted' && !grant.ackPI">
       <v-card class="acknowledgment-card" outlined>
         <v-card-text>
           <v-checkbox
@@ -26,7 +30,7 @@
     </v-container>
 
     <!-- Tabs -->
-    <v-card>
+    <v-card v-if="grant">
       <v-tabs v-model="tab" background-color="#d50032" dark>
         <v-tab value="overview">Overview</v-tab>
         <v-tab v-if="shouldDisplayTasklist" value="timeline">Timeline</v-tab>
@@ -42,7 +46,7 @@
 
               <!-- Status & Completion Status Pills -->
               <v-row justify="center" class="status-container">
-                <v-chip :color="statusColor(grant.status)" class="status-pill">{{
+                <v-chip :color="statusColor(grant && grant.status)" class="status-pill">{{
                   grant.status
                 }}</v-chip>
                 <v-chip
@@ -75,7 +79,7 @@
           <v-tabs-window-item value="timeline">
             <v-card>
               <v-card-text>
-                <Timeline :grantId="grant.id" />
+                <Timeline :grant="grant" :grantId="grant._id" />
               </v-card-text>
             </v-card>
           </v-tabs-window-item>
@@ -84,7 +88,7 @@
           <v-tabs-window-item value="tasklist">
             <v-card>
               <v-card-text>
-                <Tasklist :grantId="grant.id" />
+                <Tasklist :grant="grant" :grantId="grant._id" />
               </v-card-text>
             </v-card>
           </v-tabs-window-item>
@@ -124,6 +128,7 @@ import { useGrantProposalsStore } from '@/stores/grantProposals'
 import { useUserStore } from '../stores/user'
 import Tasklist from '@/components/Tasklist.vue'
 import Timeline from '@/components/Timeline.vue'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   components: {
@@ -133,6 +138,7 @@ export default {
   data() {
     return {
       tab: 'overview',
+      grant: null, // Initialize as null
       approvalDialog: false,
       acknowledgmentDialog: false,
       acknowledgePI: false,
@@ -146,6 +152,7 @@ export default {
     },
     shouldDisplayTasklist() {
       if (!this.user) return false
+      if (!this.grant) return false
       if (
         (this.user.role === 'Grant Admin' || this.user.role === 'Grant Manager') &&
         (this.grant.status === 'accepted' ||
@@ -157,46 +164,49 @@ export default {
       }
       return false
     },
-    grant() {
-      const store = useGrantProposalsStore()
-      const id = this.$route.params.id
-      return store.proposals.find((p) => p.id === id) || {}
-    },
     displayFields() {
+      if (!this.grant) return {} // Prevents errors before data loads
+
       return {
-        piFirstName: this.grant.piFirstName,
-        piLastName: this.grant.piLastName,
-        piEmail: this.grant.piEmail,
-        piDivision: this.grant.piDivision,
+        piFirstName: this.grant.piFirstName || 'N/A',
+        piLastName: this.grant.piLastName || 'N/A',
+        piEmail: this.grant.piEmail || 'N/A',
+        piDivision: this.grant.piDivision || 'N/A',
         sponsorDeadlineDate: this.formatFieldValue(
           'sponsorDeadlineDate',
           this.grant.sponsorDeadlineDate,
         ),
         sponsorDeadlineTime: this.formatTime(this.grant.sponsorDeadlineTime),
-        proposalType: this.grant.proposalType,
-        fundingAgency: this.grant.fundingAgency,
-        isSubaward: this.grant.isSubaward,
-        primeInstitution: this.grant.primeInstitution,
-        primeInstitutionContact: this.grant.primeInstitutionContact,
-        primeInstitutionContactEmail: this.grant.primeInstitutionContactEmail,
-        submissionBy: this.grant.submissionBy,
-        submissionType: this.grant.submissionType,
-        fundingOpportunity: this.grant.fundingOpportunity,
-        temporaryAppId: this.grant.temporaryAppId,
-        activityType: this.grant.activityType,
-        projectTitle: this.grant.projectTitle,
+        proposalType: this.grant.proposalType || 'N/A',
+        fundingAgency: this.grant.fundingAgency || 'N/A',
+        isSubaward: this.grant.isSubaward || 'N/A',
+        primeInstitution: this.grant.primeInstitution || 'N/A',
+        primeInstitutionContact: this.grant.primeInstitutionContact || 'N/A',
+        primeInstitutionContactEmail: this.grant.primeInstitutionContactEmail || 'N/A',
+        submissionBy: this.grant.submissionBy || 'N/A',
+        submissionType: this.grant.submissionType || 'N/A',
+        fundingOpportunity: this.grant.fundingOpportunity || 'N/A',
+        temporaryAppId: this.grant.temporaryAppId || 'N/A',
+        activityType: this.grant.activityType || 'N/A',
+        projectTitle: this.grant.projectTitle || 'N/A',
         keyPersonnel: this.grant.keyPersonnel
-          ?.map((kp) => `${kp?.name} (${kp?.email}, ${kp?.institution})`)
-          .join(', '),
-        hasSubcontracts: this.grant.hasSubcontracts,
+          ? this.grant.keyPersonnel
+              .map((kp) => `${kp?.name} (${kp?.email}, ${kp?.institution})`)
+              .join(', ')
+          : 'N/A',
+        hasSubcontracts: this.grant.hasSubcontracts || 'N/A',
         subcontracts: this.grant.subcontracts
-          ?.map(
-            (sc) =>
-              `${sc?.subcontractInstitution} - PI: ${sc?.subcontractSitePI}, Contact: ${sc?.subcontractContactName} (${sc?.subcontractContactEmail})`,
-          )
-          .join('; '),
-        additionalRequirements: this.grant.additionalRequirements?.join(', '),
-        hasConflictOfInterest: this.grant.hasConflictOfInterest,
+          ? this.grant.subcontracts
+              .map(
+                (sc) =>
+                  `${sc?.subcontractInstitution} - PI: ${sc?.subcontractSitePI}, Contact: ${sc?.subcontractContactName} (${sc?.subcontractContactEmail})`,
+              )
+              .join('; ')
+          : 'N/A',
+        additionalRequirements: this.grant.additionalRequirements
+          ? this.grant.additionalRequirements.join(', ')
+          : 'N/A',
+        hasConflictOfInterest: this.grant.hasConflictOfInterest || 'N/A',
         rejectionNote: this.grant.rejectionNote || 'N/A',
       }
     },
@@ -208,6 +218,15 @@ export default {
     },
   },
   methods: {
+    async fetchGrantById() {
+      try {
+        const id = this.$route.params.id
+        const response = await fetch(`${API_BASE_URL}/grants/${id}`)
+        this.grant = await response.json()
+      } catch (error) {
+        console.error('Error fetching grant:', error)
+      }
+    },
     formatFieldName(key) {
       if (key === 'rejectionNote') {
         return "Grant Manager's note for modifications required"
@@ -239,11 +258,35 @@ export default {
     confirmApproval() {
       this.approvalDialog = true
     },
-    approveAndSend() {
-      alert('The grant proposal was approved by you and sent to the PI')
-      this.grant.status = 'accepted'
-      useGrantProposalsStore().updateProposalStatus(this.grant.id, 'accepted')
-      this.approvalDialog = false
+    async approveAndSend() {
+      try {
+        const id = this.$route.params.id
+        await fetch(`${API_BASE_URL}/grants/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'accepted' }),
+        })
+        this.grant.status = 'accepted' // Update UI after success
+        this.approvalDialog = false
+        alert('The grant proposal was approved and sent to the PI.')
+      } catch (error) {
+        console.error('Error approving proposal:', error)
+      }
+    },
+    async acknowledge() {
+      try {
+        const id = this.$route.params.id
+        await fetch(`${API_BASE_URL}/grants/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: this.grant.status, ackPI: true }),
+        })
+        this.grant.ackPI = true // Update UI
+        this.acknowledgmentDialog = false
+        alert('Acknowledgment has been sent.')
+      } catch (error) {
+        console.error('Error acknowledging proposal:', error)
+      }
     },
     confirmAcknowledgment() {
       if (this.tempAcknowledgePI) {
@@ -267,6 +310,14 @@ export default {
       if (!val) {
         this.tempAcknowledgePI = false // Reset checkbox if dialog is closed
       }
+    },
+    '$route.params.id': {
+      immediate: true, // Runs immediately when component is mounted
+      handler(newId) {
+        if (newId) {
+          this.fetchGrantById()
+        }
+      },
     },
   },
 }

@@ -22,12 +22,14 @@
 </template>
 
 <script>
+import { API_BASE_URL } from '@/config/config'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
 
 export default {
   data() {
     return {
       search: '', // Search query
+      proposals: [], // Store fetched proposals
       headers: [
         { title: 'PI Last Name', value: 'piLastName' },
         { title: 'PI First Name', value: 'piFirstName' },
@@ -40,10 +42,6 @@ export default {
     }
   },
   computed: {
-    proposals() {
-      const store = useGrantProposalsStore()
-      return store.getPendingProposals() // Show only pending proposals
-    },
     filteredProposals() {
       // Filter proposals based on search query
       const query = this.search.toLowerCase()
@@ -65,6 +63,19 @@ export default {
       // Navigate to the detailed view page with proposal ID
       this.$router.push({ name: 'ProposalDetail', params: { id: proposal.id } })
     },
+    async fetchPendingProposals() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/grants/pending`)
+        const data = await response.json()
+        data.forEach((proposal) => (proposal.id = proposal._id))
+        this.proposals = data // No need to filter here, backend already filters
+      } catch (error) {
+        console.error('Error fetching pending proposals:', error)
+      }
+    },
+  },
+  mounted() {
+    this.fetchPendingProposals()
   },
 }
 </script>

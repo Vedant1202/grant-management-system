@@ -5,7 +5,7 @@
     <v-card class="mt-4" outlined>
       <v-card-title>Proposal Details</v-card-title>
       <v-card-text>
-        <v-row>
+        <v-row v-if="proposal">
           <!-- PI Information -->
           <v-col cols="12" sm="6">
             <strong>PI First Name:</strong> {{ proposal.piFirstName }}
@@ -79,10 +79,11 @@
             </ul>
           </v-col>
         </v-row>
+        <v-row v-else> Proposal not found </v-row>
       </v-card-text>
     </v-card>
 
-    <v-row class="mt-4">
+    <v-row v-if="proposal" class="mt-4">
       <v-col cols="12">
         <strong>Status:</strong>
         <v-chip
@@ -103,7 +104,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="mt-4">
+    <v-row v-if="proposal" class="mt-4">
       <!-- Accept Button -->
       <v-col>
         <v-btn color="success" @click="openAcceptDialog" :disabled="proposal.status === 'accepted'">
@@ -157,20 +158,15 @@
 
 <script>
 import moment from 'moment'
+import { API_BASE_URL } from '@/config/config'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
 
 export default {
   computed: {
-    proposal() {
-      const store = useGrantProposalsStore()
-      const id = this.$route.params.id // Get proposal ID from the route params
-      return store.proposals.find((p) => p.id === id)
-    },
     formattedSponsorDueDate() {
-      if (this.proposal && this.proposal.sponsorDueDate) {
-        return moment(this.proposal.sponsorDueDate).format('MMMM Do, YYYY')
-      }
-      return 'N/A'
+      return this.proposal?.sponsorDueDate
+        ? moment(this.proposal.sponsorDueDate).format('MMMM Do, YYYY')
+        : 'N/A'
     },
   },
   data() {
@@ -178,42 +174,68 @@ export default {
       isAcceptDialogOpen: false, // Controls the accept confirmation dialog
       isRejectDialogOpen: false, // Controls the reject dialog
       rejectionNote: '', // Stores the rejection reason
+      proposal: null, // Store fetched proposal
     }
   },
   methods: {
+    async fetchProposalById(id) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/grants/${id}`)
+        this.proposal = await response.json()
+      } catch (error) {
+        console.error('Error fetching proposal:', error)
+      }
+    },
     openAcceptDialog() {
       this.isAcceptDialogOpen = true // Open the accept confirmation dialog
     },
-    confirmAcceptProposal() {
-      const store = useGrantProposalsStore()
-      const id = this.$route.params.id
-      const proposal = store.proposals.find((p) => p.id === id)
-      if (proposal) {
-        proposal.status = 'accepted - pending tasklist and timeline' // Updated status
-        proposal.rejectionNote = '' // Clear rejection note if any
-        localStorage.setItem('proposals', JSON.stringify(store.proposals)) // Persist changes
+    async confirmAcceptProposal() {
+      try {
+        const id = this.$route.params.id
+        await fetch(`${API_BASE_URL}/grants/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'accepted' }),
+        })
+        this.proposal.status = 'accepted' // Update UI
+        this.isAcceptDialogOpen = false
+      } catch (error) {
+        console.error('Error updating proposal status:', error)
       }
-      this.isAcceptDialogOpen = false // Close dialog
-      this.$router.push(`/grant/${id}`) // Redirect to grant details page
     },
     openRejectDialog() {
       this.isRejectDialogOpen = true // Open the rejection dialog
     },
-    rejectProposal() {
+    async rejectProposal() {
       if (!this.rejectionNote.trim()) {
         alert('Please specify the reason for rejection and corrections.')
         return
       }
-      const store = useGrantProposalsStore()
-      const id = this.$route.params.id
-      const proposal = store.proposals.find((p) => p.id === id)
-      if (proposal) {
-        proposal.status = 'needs modification' // Update status
-        proposal.rejectionNote = this.rejectionNote // Save rejection note
-        localStorage.setItem('proposals', JSON.stringify(store.proposals)) // Persist changes
+      try {
+        const id = this.$route.params.id
+        await fetch(`${API_BASE_URL}/grants/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'needs modification', rejectionNote: this.rejectionNote }),
+        })
+        this.proposal.status = 'needs modification' // Update UI
+        this.proposal.rejectionNote = this.rejectionNote
+        this.isRejectDialogOpen = false
+        this.$router.push('/admin-dashboard') // Redirect
+      } catch (error) {
+        console.error('Error rejecting proposal:', error)
       }
-      this.isRejectDialogOpen = false // Close dialog
-      this.$router.push('/admin-dashboard') // Redirect to admin dashboard
+    },
+  },
+  watch: {
+    '$route.params.id': {
+      immediate: true, // Runs immediately when component is mounted
+      handler(newId) {
+        if (newId) {
+          this.fetchProposalById(newId)
+          console.log('fetched')
+        }
+      },
     },
   },
 }

@@ -60,11 +60,14 @@
 
 <script>
 import { useGrantProposalsStore } from '@/stores/grantProposals'
+import { useUserStore } from '@/stores/user'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   data() {
     return {
       search: '', // Search query input by user
+      grants: [], // Store fetched grants
       headers: [
         { text: 'Grant', value: 'name' }, // Table column header for Grant name
         { text: 'Status', value: 'status' }, // Table column header for Grant status
@@ -73,27 +76,58 @@ export default {
     }
   },
   computed: {
-    grants() {
-      const store = useGrantProposalsStore()
-      return store.proposals // Fetch grants from the store
-    },
     filteredGrants() {
       const query = this.search.toLowerCase()
       return this.grants
         .filter((grant) => {
           const grantProposalTitle = grant.proposedTitle || grant.projectTitle
           return (
-            (grantProposalTitle || '').toLowerCase().includes(query) || // Search by proposed title
-            (grant.status || '').toLowerCase().includes(query) // Search by status
+            (grantProposalTitle || '').toLowerCase().includes(query) ||
+            (grant.status || '').toLowerCase().includes(query)
           )
         })
-        .reverse() // Reverse order to show latest additions first
+        .reverse()
     },
   },
   methods: {
     viewGrant(id) {
       this.$router.push({ name: 'GrantView', params: { id } })
     },
+    async fetchUserGrants() {
+      try {
+        const userStore = useUserStore()
+        const userEmail = userStore.userEmail // ✅ Now using the getter
+        const response = await fetch(`${API_BASE_URL}/grants?piEmail=${userEmail}`)
+        const grants = await response.json()
+        grants.forEach((grant) => {
+          grant.id = grant._id
+        })
+        this.grants = grants
+      } catch (error) {
+        console.error('Error fetching user grants:', error)
+      }
+    },
+  },
+  async mounted() {
+    await this.fetchUserGrants()
+  },
+  watch: {
+    'userStore.userEmail': {
+      immediate: true,
+      handler(newEmail) {
+        if (newEmail) {
+          this.fetchUserGrants()
+        }
+      },
+    },
+    // '$route.path': {
+    //   immediate: true, // Run this immediately when component is created
+    //   handler(newPath) {
+    //     if (newPath === '/proposals') {
+    //       this.fetchUserGrants() // Fetch proposals again
+    //     }
+    //   },
+    // },
   },
 }
 </script>

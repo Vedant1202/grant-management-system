@@ -224,19 +224,17 @@
                 </v-card>
 
                 <!-- Conditional Follow-up Question for DOM CTU -->
-                <template v-if="formData.consultClinicalTrials === 'yes'">
-                  <v-card class="clinical-trial-info">
-                    <v-card-title class="info-title">
-                      Would you like to consult with the DOM CTU?
-                    </v-card-title>
-                    <v-card-text>
-                      <v-radio-group v-model="formData.consultDOMCTU">
-                        <v-radio label="Yes" value="yes"></v-radio>
-                        <v-radio label="No" value="no"></v-radio>
-                      </v-radio-group>
-                    </v-card-text>
-                  </v-card>
-                </template>
+                <v-card class="clinical-trial-info">
+                  <v-card-title class="info-title">
+                    Would you like to consult with the DOM CTU?
+                  </v-card-title>
+                  <v-card-text>
+                    <v-radio-group v-model="formData.consultDOMCTU">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
               </template>
 
               <!-- Clinical Trial Question -->
@@ -464,6 +462,7 @@
 <script>
 import moment from 'moment'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   data() {
@@ -534,7 +533,25 @@ export default {
         const store = useGrantProposalsStore()
 
         // Add the form data to the centralized store
-        store.addProposal({ ...this.formData })
+        // store.addProposal({ ...this.formData }) ## Frontend only
+
+        fetch(`${API_BASE_URL}/grants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.formData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Success:', data)
+            alert('Grant proposal submitted successfully!')
+            this.$router.push('/new-grant-proposal-requests')
+          })
+          .catch((error) => {
+            console.error('Error:', error)
+            alert('There was an issue submitting your proposal.')
+          })
         this.formData = {
           piFirstName: '',
           piLastName: '',

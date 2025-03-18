@@ -173,11 +173,16 @@ import { Tasklist_DOD } from '@/templates/Tasklist_DOD'
 import { Tasklist_HRSA } from '@/templates/Tasklist_HRSA'
 
 import { useTasklistStore } from '@/stores/tasklist'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   props: {
     grantId: {
       type: String,
+      required: true,
+    },
+    grant: {
+      type: Object,
       required: true,
     },
   },
@@ -226,12 +231,13 @@ export default {
       selectedTemplate: null, // Selected template
       firstLoad: true, // Tracks whether the first load has already happened
       selectedTemplate: null, // Selected template
+      tasklist: [], // ✅ Store fetched tasklist locally
     }
   },
   computed: {
-    tasklist() {
-      return this.tasklistStore.getTasklist(this.grantId) // Fetch the tasklist for the specific grantId
-    },
+    // tasklist() {
+    //   return this.tasklistStore.getTasklist(this.grantId) // Fetch the tasklist for the specific grantId
+    // },
     tasklistStore() {
       return useTasklistStore() // Access the Pinia store
     },
@@ -251,38 +257,107 @@ export default {
   },
   watch: {
     selectedTemplate(value) {
-      if (this.firstLoad && this.tasklist.length > 0) {
-        console.log('Tasklist already exists. Not applying template on first load.')
-        return // Prevent overriding existing tasklist on first load
+      if (this.firstLoad) {
+        console.log('Tasklist already exists. Skipping template application on first load.')
+        this.firstLoad = false // Prevent overwriting existing tasklist
+        return
       }
 
       console.log('Applying template:', value)
       this.applyTemplate()
     },
   },
+
   methods: {
-    loadTasklist() {
-      this.tasklistStore.loadTasklist(this.grantId) // Load the tasklist for the specific grantId
+    fetchTasklist() {
+      try {
+        if (!this.grant) {
+          console.error('Grant data is missing')
+          this.tasklist = []
+          this.selectedTemplate = null
+          return
+        }
+
+        console.log('Grant additionalData:', this.grant.additionalData)
+
+        // Extract tasklist and template from the grant's additionalData
+        this.tasklist = this.grant.additionalData?.tasklist || []
+        this.selectedTemplate = this.grant.additionalData?.selectedTemplateTaskList || null
+
+        console.log('Loaded Tasklist:', this.tasklist)
+        console.log('Selected Tasklist Template:', this.selectedTemplate)
+
+        // ✅ Ensure headers are updated based on the tasklist structure
+        if (this.tasklist.length > 0) {
+          this.setTableHeaders(this.tasklist)
+        }
+
+        // ✅ Prevent auto-overwriting with template when tasklist already exists
+        this.firstLoad = !!this.tasklist.length
+      } catch (error) {
+        console.error('Error loading tasklist data from grant prop:', error)
+        this.tasklist = [] // Default to empty array
+        this.selectedTemplate = null
+      }
     },
-    saveChanges() {
-      this.tasklistStore.saveTasklist(this.grantId, this.tasklist) // Save tasklist to store
-      this.$nextTick(() => alert('Tasklist changes saved successfully!')) // Optional feedback
+
+    setTableHeaders(tasklist) {
+      if (!tasklist.length) return
+
+      this.headers = Object.keys(tasklist[0]).map((key) => ({
+        title: key.replace(/([A-Z])/g, ' $1').trim(),
+        value: key,
+      }))
+
+      // ✅ Ensure checkboxes and actions columns are always present
+      this.headers.unshift({ title: 'Done?', value: 'completed', sortable: false })
+      this.headers.push({ title: 'Actions', value: 'actions', sortable: false })
+
+      console.log('Updated Table Headers:', this.headers)
     },
+
+    async saveChanges() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/grants/${this.grantId}/additionalData`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tasklist: this.tasklist, // Save tasklist
+            selectedTemplateTaskList: this.selectedTemplate, // Save selected dropdown template
+          }),
+        })
+
+        if (!response.ok) throw new Error('Failed to save tasklist')
+
+        alert('Tasklist and template selection saved successfully!')
+      } catch (error) {
+        console.error('Error saving tasklist:', error)
+      }
+    },
+
+    // loadTasklist() {
+    //   this.tasklistStore.loadTasklist(this.grantId) // Load the tasklist for the specific grantId
+    // },
+    // saveChanges() {
+    //   this.tasklistStore.saveTasklist(this.grantId, this.tasklist) // Save tasklist to store
+    //   this.$nextTick(() => alert('Tasklist changes saved successfully!')) // Optional feedback
+    // },
     addOrUpdateTask() {
       if (this.isEditing) {
-        this.tasklistStore.updateTask(this.grantId, this.editingIndex, { ...this.currentTask })
+        this.tasklist[this.editingIndex] = { ...this.currentTask }
       } else {
-        this.tasklistStore.addTask(this.grantId, { ...this.currentTask })
+        this.tasklist.push({ ...this.currentTask, id: Date.now() })
       }
       this.resetForm()
     },
+
     editTask(task) {
       this.currentTask = { ...task }
       this.isEditing = true
       this.editingIndex = this.tasklist.indexOf(task)
     },
     removeTask(index) {
-      this.tasklistStore.removeTask(this.grantId, index)
+      this.tasklist.splice(index, 1) // Remove from local tasklist
     },
     resetForm() {
       this.currentTask = {
@@ -296,11 +371,12 @@ export default {
       this.isEditing = false
       this.editingIndex = null
     },
-    applyTemplate() {
-      // Clear the current tasklist
-      this.tasklistStore.clearTasklist(this.grantId)
 
-      // Determine the selected tasklist
+    applyTemplate() {
+      if (!this.selectedTemplate) return
+
+      console.log('Applying template:', this.selectedTemplate)
+
       let selectedTasklist = []
       switch (this.selectedTemplate) {
         case 'Default Tasklist':
@@ -329,28 +405,18 @@ export default {
           return
       }
 
-      // Dynamically update headers
+      // ✅ Set headers dynamically based on template structure
       if (selectedTasklist.length > 0) {
-        this.headers = Object.keys(selectedTasklist[0]).map((key) => ({
-          title: key.replace(/([A-Z])/g, ' $1').trim(),
-          value: key,
-        }))
+        this.setTableHeaders(selectedTasklist)
       }
 
-      // Add unique ID to each task
-      selectedTasklist = selectedTasklist.map((task) => ({
+      // ✅ Generate unique IDs and update local tasklist
+      this.tasklist = selectedTasklist.map((task) => ({
         ...task,
-        id: Date.now() + Math.floor(Math.random() * 1000), // Unique numeric ID
+        id: Date.now() + Math.floor(Math.random() * 1000),
       }))
 
-      // Ensure checkbox and actions columns are always present
-      this.headers.unshift({ title: 'Done?', value: 'completed', sortable: false })
-      this.headers.push({ title: 'Actions', value: 'actions', sortable: false })
-
-      // Add each task with an ID to the store
-      selectedTasklist.forEach((task) => {
-        this.tasklistStore.addTask(this.grantId, task)
-      })
+      console.log('Tasklist updated from template:', this.tasklist)
     },
 
     getTaskKey(task) {
@@ -365,15 +431,9 @@ export default {
       return this.completedTasks.has(task.id)
     },
   },
-  mounted() {
-    this.loadTasklist() // Load stored tasklist first
-
-    this.$nextTick(() => {
-      if (this.tasklist.length > 0) {
-        console.log('Tasklist exists. Preventing auto template application on first load.')
-        this.firstLoad = false // Prevents template from auto-applying
-      }
-    })
+  async mounted() {
+    console.log('Tasklist component mounted')
+    await this.fetchTasklist()
   },
 }
 </script>

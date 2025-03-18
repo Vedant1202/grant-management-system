@@ -42,11 +42,13 @@
 
 <script>
 import { useGrantProposalsStore } from '@/stores/grantProposals'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   data() {
     return {
       search: '', // Search query
+      proposals: [], // Store fetched proposals
       headers: [
         { title: 'PI Last Name', value: 'piLastName' },
         { title: 'PI First Name', value: 'piFirstName' },
@@ -71,12 +73,34 @@ export default {
             proposal.piFirstName.toLowerCase().includes(query) ||
             proposal.division.toLowerCase().includes(query),
         )
-        .reverse() // Reverse order to show latest additions first
+        .reverse() // Show latest first
     },
   },
   methods: {
     viewProposal(proposal) {
       this.$router.push({ name: 'GrantView', params: { id: proposal.id } })
+    },
+    async fetchAdminProposals() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/grants`)
+        const data = await response.json()
+        this.proposals = data.filter((proposal) => proposal.status !== 'pending') // Exclude pending
+        this.proposals.forEach((proposal) => {
+          proposal.id = proposal._id
+        })
+      } catch (error) {
+        console.error('Error fetching proposals:', error)
+      }
+    },
+  },
+  watch: {
+    '$route.path': {
+      immediate: true,
+      handler(newPath) {
+        if (newPath === '/admin-dashboard') {
+          this.fetchAdminProposals()
+        }
+      },
     },
   },
 }

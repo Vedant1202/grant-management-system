@@ -22,7 +22,8 @@
             label="Select Template"
             outlined
             dense
-          ></v-select>
+            @update:modelValue="onTemplateChange"
+          />
         </v-col>
         <v-col cols="12" sm="6">
           <v-btn color="primary" outlined @click="applyTemplate"> Apply Template </v-btn>
@@ -56,7 +57,7 @@
                   <v-date-picker
                     v-model="currentItem.date"
                     :allowed-dates="allowedDates"
-                    @input="handleDateSelect"
+                    @update:model-value="handleDateSelect"
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -214,11 +215,16 @@ import moment from 'moment'
 
 import { useTimelineStore } from '@/stores/timeline'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   props: {
     grantId: {
       type: String,
+      required: true,
+    },
+    grant: {
+      type: Object,
       required: true,
     },
   },
@@ -239,6 +245,7 @@ export default {
         isMajor: false,
         completed: false,
       },
+      timeline: [], // Store fetched timeline
       templateOptions: ['DOM Default Timeline'], // Add template names
       selectedTemplate: null,
       isEditing: false,
@@ -248,26 +255,77 @@ export default {
     }
   },
   computed: {
+    computed: {
+      sponsorDueDate() {
+        if (!this.grant) {
+          console.error('Grant data is not available.')
+          return null
+        }
+
+        // Prioritize saved date in additionalData, fallback to sponsorDeadlineDate
+        const savedDate = this.grant.additionalData?.customSponsorDeadlineDate
+        const deadlineDate = savedDate || this.grant.sponsorDeadlineDate
+
+        if (!deadlineDate) {
+          console.error('No valid sponsor deadline date found.')
+          return null
+        }
+
+        const parsedDate = new Date(deadlineDate)
+
+        if (isNaN(parsedDate.getTime())) {
+          console.error('Invalid sponsor deadline date format:', deadlineDate)
+          return null
+        }
+
+        return parsedDate
+      },
+    },
     sortedTimeline() {
       return [...this.timeline].sort((a, b) => new Date(a.date) - new Date(b.date))
     },
-    timeline() {
-      return this.timelineStore.getTimeline(this.grantId) // Always fetch from store
-    },
+    // timeline() {
+    //   return this.timelineStore.getTimeline(this.grantId) // Always fetch from store
+    // },
     formattedDate() {
       if (!this.currentItem.date) return 'N/A'
       return this.formatDate(this.currentItem.date) // Use the formatDate method
     },
-    timelineStore() {
-      return useTimelineStore() // Access the Pinia store
-    },
+    // timelineStore() {
+    //   return useTimelineStore() // Access the Pinia store
+    // },
+
     grantProposalsStore() {
       return useGrantProposalsStore() // Access the grant proposals store
     },
+
     sponsorDueDate() {
-      const proposal = this.grantProposalsStore.proposals.find((p) => p.id === this.grantId)
-      return proposal ? moment(proposal.sponsorDueDate) : null // Parse sponsorDueDate as a moment object
+      if (!this.grant) {
+        console.error('Grant data is not available.')
+        return null
+      }
+
+      // Prioritize customSponsorDeadlineDate from additionalData
+      const savedDate = this.grant.additionalData?.customSponsorDeadlineDate
+      const deadlineDate = savedDate || this.grant.sponsorDeadlineDate
+
+      if (!deadlineDate) {
+        console.error('No valid sponsor deadline date found.')
+        return null
+      }
+
+      const parsedDate = new Date(deadlineDate)
+
+      if (isNaN(parsedDate.getTime())) {
+        console.error('Invalid sponsor deadline date format:', deadlineDate)
+        return null
+      }
+
+      console.log('✅ Parsed Sponsor Due Date:', parsedDate.toISOString())
+
+      return parsedDate
     },
+
     hasChanges() {
       // return (
       //   JSON.stringify(this.timeline) !==
@@ -277,21 +335,66 @@ export default {
     },
   },
   methods: {
-    applyTemplate() {
+    async fetchTimeline() {
+      if (this.grant && this.grant.additionalData) {
+        this.timeline = [...(this.grant.additionalData.timeline || [])] // Load timeline if available
+        this.selectedTemplate = this.grant.additionalData.selectedTemplateTimeline || null // Load saved template
+      } else {
+        this.timeline = [] // Default to empty array if no saved timeline
+        this.selectedTemplate = null
+      }
+
+      // ✅ Set default completion date as sponsorDueDate if available
+      if (this.sponsorDueDate) {
+        this.currentItem.date = this.sponsorDueDate
+      }
+    },
+
+    onTemplateChange(newTemplate) {
+      this.selectedTemplate = newTemplate // Ensure it's updated in the component state
+      console.log('Template updated:', this.selectedTemplate)
+    },
+
+    getValidDate(date) {
+      if (!date) return null // Handle undefined/null values
+
+      // Check if date is a valid Date object already
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date
+      }
+
+      // Try parsing if it's a string (handles "YYYY-MM-DD" format)
+      const parsedDate = new Date(date)
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate
+      }
+
+      console.error('Invalid date format:', date)
+      return null
+    },
+
+    async applyTemplate() {
       if (!this.selectedTemplate) {
         alert('Please select a template.')
         return
       }
 
-      const sponsorDate = this.sponsorDueDate // Ensure this is a Date object
-      if (!sponsorDate) {
-        alert('Sponsor due date not found for the current grant.')
+      // Use computed sponsorDueDate, ensuring it prioritizes additionalData
+      const sponsorDate = this.sponsorDueDate
+
+      if (!sponsorDate || isNaN(sponsorDate.getTime())) {
+        alert('Sponsor due date is invalid.')
+        console.error('❌ Sponsor Date is invalid:', sponsorDate)
         return
       }
+
+      console.log('🚀 Applying template with sponsor date:', sponsorDate.toISOString())
 
       this.loadTemplateData(this.selectedTemplate).then((templateData) => {
         const newItems = templateData.map((item) => {
           const calculatedDate = this.calculateDueDate(item.Date, sponsorDate)
+          console.log('📌 Calculated Date for', item.Description, '->', calculatedDate)
+
           return {
             date: calculatedDate,
             description: item.Description,
@@ -301,34 +404,49 @@ export default {
           }
         })
 
-        // Append new items to the store's timeline for this grant
-        newItems.forEach((item) => {
-          this.timelineStore.addTimelineItem(this.grantId, item)
-        })
+        // ✅ Instead of appending, REPLACE the existing timeline
+        this.timeline = [...newItems]
+
+        console.log('✅ Timeline successfully replaced with template data')
       })
     },
+
     calculateDueDate(dateDescription, sponsorDate) {
+      if (!sponsorDate || isNaN(sponsorDate.getTime())) {
+        console.error('❌ Invalid sponsorDate:', sponsorDate)
+        return null
+      }
+
+      console.log('📌 Calculating Due Date from:', sponsorDate.toISOString())
+
       const matches = dateDescription.match(/(\d+)\s+business days before sponsor deadline/)
-      if (!matches) return null
+      if (!matches) {
+        console.error('❌ Invalid date description format:', dateDescription)
+        return null
+      }
 
       let daysToSubtract = parseInt(matches[1], 10)
-      let currentDate = new Date(sponsorDate) // Start from the sponsor date
+      let currentDate = new Date(sponsorDate) // Clone date to avoid modifying original
+
+      // Ensure we're working in UTC to avoid timezone issues
+      currentDate.setUTCHours(12, 0, 0, 0) // Set noon UTC to avoid timezone shifts
 
       // Subtract business days
       while (daysToSubtract > 0) {
-        currentDate.setDate(currentDate.getDate() - 1) // Move one day back
-        const dayOfWeek = currentDate.getDay()
+        currentDate.setUTCDate(currentDate.getUTCDate() - 1)
+        const dayOfWeek = currentDate.getUTCDay()
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-          // Only decrement on weekdays (Monday-Friday)
           daysToSubtract--
         }
       }
 
-      return currentDate
+      console.log('✅ Final Calculated Date:', currentDate.toISOString().split('T')[0])
+
+      return currentDate.toISOString().split('T')[0] // Return YYYY-MM-DD format
     },
+
     loadTemplateData(templateName) {
       return new Promise((resolve) => {
-        // Template-specific logic (currently only one template is available)
         if (templateName === 'DOM Default Timeline') {
           const templateData = [
             {
@@ -385,30 +503,49 @@ export default {
       })
     },
 
-    saveChanges() {
-      this.timelineStore.saveTimeline(this.grantId, this.timeline) // Save timeline to store
-      this.$nextTick(() => alert('Timeline changes saved successfully!')) // Optional feedback
+    async saveChanges() {
+      try {
+        console.log('🚀 Saving timeline data:', this.timeline)
+
+        const response = await fetch(`${API_BASE_URL}/grants/${this.grantId}/additionalData`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            timeline: this.timeline, // ✅ Ensure it includes updated dates
+            selectedTemplateTimeline: this.selectedTemplate, // ✅ Save template selection
+          }),
+        })
+
+        if (!response.ok) throw new Error('❌ Failed to save timeline')
+
+        alert('✅ Timeline and template selection saved successfully!')
+      } catch (error) {
+        console.error('❌ Error saving timeline:', error)
+      }
     },
 
     addOrUpdateItem() {
       if (this.isEditing) {
-        this.timelineStore.updateTimelineItem(this.grantId, this.editingIndex, {
-          ...this.currentItem,
-        })
+        // Update the existing item in the local array
+        this.timeline[this.editingIndex] = { ...this.currentItem }
       } else {
-        this.timelineStore.addTimelineItem(this.grantId, { ...this.currentItem })
+        // Add a new item to the local array
+        this.timeline.push({ ...this.currentItem })
       }
       this.resetForm()
     },
+
     editItem(item) {
       this.currentItem = { ...item }
       this.isEditing = true
       this.editingIndex = this.timeline.indexOf(item)
       this.formattedDate = this.formatDate(item.date)
     },
+
     removeItem(index) {
-      this.timelineStore.removeTimelineItem(this.grantId, index)
+      this.timeline.splice(index, 1) // Remove item from local array
     },
+
     resetForm() {
       this.currentItem = {
         date: this.getTomorrowDate(),
@@ -476,9 +613,25 @@ export default {
       })
     },
     handleDateSelect(date) {
-      this.currentItem.date = new Date(date) // Ensure it's saved as a Date object
-      this.formattedDate = this.formatDate(this.currentItem.date) // Update the human-readable date
-      this.menu = false // Close the menu after selection
+      console.log('📅 Date selected:', date)
+
+      const newDate = new Date(date) // Ensure it's a Date object
+      if (isNaN(newDate.getTime())) {
+        console.error('❌ Invalid date:', date)
+        return
+      }
+
+      // Update the currently editing item in the timeline
+      if (this.isEditing && this.editingIndex !== null) {
+        this.timeline[this.editingIndex].date = newDate // Ensure consistent format
+      } else {
+        this.currentItem.date = newDate
+      }
+
+      this.formattedDate = this.formatDate(newDate) // Update human-readable display
+      this.menu = false // Close the date picker
+
+      console.log('✅ Updated item date:', this.currentItem.date)
     },
 
     formatTime(date) {
@@ -495,9 +648,9 @@ export default {
       this.showTimeline = !this.showTimeline // Toggle the timeline visibility
     },
   },
-  mounted() {
-    this.timelineStore.loadTimeline(this.grantId) // Ensure timeline is loaded from store
-    this.formattedDate = this.formatDate(this.currentItem.date) // Format tomorrow's date for display
+  async mounted() {
+    console.log('timeline mounted called')
+    await this.fetchTimeline()
   },
 }
 </script>

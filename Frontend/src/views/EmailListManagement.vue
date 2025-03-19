@@ -72,35 +72,33 @@
                     <v-expansion-panel-text>
                       <v-expansion-panels>
                         <v-expansion-panel
-                          v-for="(pis, division) in PIs"
-                          :key="division"
+                          v-for="pi in Object.keys(PIs[division] || {})"
+                          :key="pi"
                           class="internal-category"
                         >
-                          <v-expansion-panel-title class="internal-title"
-                            >{{ division }} - PIs</v-expansion-panel-title
-                          >
+                          <v-expansion-panel-title class="internal-title">{{
+                            pi
+                          }}</v-expansion-panel-title>
                           <v-expansion-panel-text>
-                            <div v-for="(emails, pi) in pis" :key="pi" class="internal-subcategory">
-                              <email-list-editor
-                                :emails="emails"
-                                :title="pi"
-                                @update="updatePIs(division, pi, $event)"
-                              />
-                              <v-expansion-panels>
-                                <v-expansion-panel class="internal-subcategory">
-                                  <v-expansion-panel-title class="internal-title"
-                                    >Co-PIs & Team Members</v-expansion-panel-title
-                                  >
-                                  <v-expansion-panel-text>
-                                    <email-list-editor
-                                      :emails="teamMembers[division][pi]"
-                                      :title="pi + ' - Co-PIs & Team Members'"
-                                      @update="updateTeamMembers(division, pi, $event)"
-                                    />
-                                  </v-expansion-panel-text>
-                                </v-expansion-panel>
-                              </v-expansion-panels>
-                            </div>
+                            <email-list-editor
+                              :emails="PIs[division][pi] || []"
+                              :title="pi"
+                              @update="updatePIs(division, pi, $event)"
+                            />
+                            <v-expansion-panels>
+                              <v-expansion-panel class="internal-subcategory">
+                                <v-expansion-panel-title class="internal-title"
+                                  >Co-PIs & Team Members</v-expansion-panel-title
+                                >
+                                <v-expansion-panel-text>
+                                  <email-list-editor
+                                    :emails="teamMembers[division]?.[pi] || []"
+                                    :title="pi + ' - Co-PIs & Team Members'"
+                                    @update="updateTeamMembers(division, pi, $event)"
+                                  />
+                                </v-expansion-panel-text>
+                              </v-expansion-panel>
+                            </v-expansion-panels>
                           </v-expansion-panel-text>
                         </v-expansion-panel>
                       </v-expansion-panels>
@@ -166,19 +164,16 @@ export default {
     },
     updateGrantManagers(division, updatedEmails) {
       if (!this.grantManagers[division]) {
-        this.grantManagers[division] = [] // Vue 3 handles reactivity automatically
+        this.grantManagers[division] = [] // Ensure it's an array
       }
       this.grantManagers[division] = updatedEmails
     },
 
     updatePIs(division, pi, updatedEmails) {
       if (!this.PIs[division]) {
-        this.PIs[division] = {}
+        this.PIs[division] = {} // Ensure division exists
       }
-      if (!this.PIs[division][pi]) {
-        this.PIs[division][pi] = []
-      }
-      this.PIs[division][pi] = updatedEmails
+      this.PIs = { ...this.PIs, [division]: { ...this.PIs[division], [pi]: updatedEmails } }
     },
 
     updateTeamMembers(division, pi, updatedEmails) {
@@ -194,19 +189,135 @@ export default {
       try {
         const response = await fetch(`${API_BASE_URL}/email-lists`)
         if (!response.ok) throw new Error('Failed to fetch email lists')
-        this.emailLists = await response.json()
+
+        const data = await response.json()
+        console.log('Fetched Email Lists:', data) // Debugging step
+
+        // Ensure each section is initialized properly
+        this.grantAdmins =
+          data.grantAdmins?.map((email) =>
+            typeof email === 'string' ? { email, enabled: true } : email,
+          ) || []
+
+        this.grantManagers = this.processEmailGroups(data.grantManagers)
+        this.PIs = this.processNestedEmailGroups(data.PIs, true) // Ensure PIs structure
+        this.teamMembers = this.processNestedEmailGroups(data.teamMembers, true) // Ensure Team Members structure
+        console.log('Processed PIs:', this.PIs)
+        console.log('Processed Team Members:', this.teamMembers)
       } catch (error) {
         console.error('Error fetching email lists:', error)
       }
     },
+    processEmailGroups(groups) {
+      const result = {}
+      this.divisions.forEach((division) => {
+        result[division] =
+          groups?.[division]?.map((email) =>
+            typeof email === 'string' ? { email, enabled: true } : email,
+          ) || [] // Ensure an empty array if no emails
+      })
+      return result
+    },
+    processNestedEmailGroups(groups, ensureEmptyStructure = false) {
+      const result = {}
+
+      this.divisions.forEach((division) => {
+        result[division] = {}
+
+        if (groups?.[division]) {
+          // Ensure that emails are NOT being treated as a PI name
+          if (groups[division].emails) {
+            result[division]['New PI'] = groups[division].emails // Default placeholder for empty
+          } else {
+            Object.keys(groups[division]).forEach((piName) => {
+              result[division][piName] = groups[division][piName] || []
+            })
+          }
+        }
+
+        // Ensure at least one placeholder PI exists if needed
+        if (ensureEmptyStructure && Object.keys(result[division]).length === 0) {
+          result[division]['New PI'] = []
+        }
+      })
+
+      return result
+    },
+
     async saveEmailLists() {
       try {
-        const emailListsData = {
-          grantAdmins: this.grantAdmins,
-          grantManagers: this.grantManagers,
-          PIs: this.PIs,
-          teamMembers: this.teamMembers,
+        const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+        const extractEmails = (emails) => {
+          if (Array.isArray(emails)) return emails // If already an array, return as-is
+          if (emails && emails.emails) return emails.emails // Extract from nested object
+          return [] // Return empty array if undefined or invalid
         }
+
+        const formatEmails = (emails) =>
+          extractEmails(emails)
+            .filter((emailObj) => emailObj.email && isValidEmail(emailObj.email)) // Remove empty/invalid emails
+            .map((emailObj) => ({ email: emailObj.email.trim(), enabled: emailObj.enabled }))
+
+        const findInvalidEmails = (emails) =>
+          extractEmails(emails).filter(
+            (emailObj) => !emailObj.email || !isValidEmail(emailObj.email),
+          )
+
+        const formatEmailGroups = (groups) => {
+          const result = {}
+          for (const key in groups) {
+            result[key] = formatEmails(groups[key]) // Ensure it's an array before filtering
+          }
+          return result
+        }
+
+        // 🚀 FIX: Ensure PIs and Team Members are nested properly
+        const formatNestedEmailGroups = (groups) => {
+          const result = {}
+          for (const division in groups) {
+            result[division] = {}
+            for (const pi in groups[division]) {
+              result[division][pi] = { emails: formatEmails(groups[division][pi]) } // Wrap in { emails: [] }
+            }
+            // Ensure at least one empty object if no PIs exist
+            if (Object.keys(result[division]).length === 0) {
+              result[division] = { 'New PI': { emails: [] } }
+            }
+          }
+          return result
+        }
+
+        const findInvalidEmailGroups = (groups) => {
+          let invalidEmails = []
+          for (const key in groups) {
+            invalidEmails = [...invalidEmails, ...findInvalidEmails(groups[key])]
+          }
+          return invalidEmails
+        }
+
+        // Find invalid emails before saving
+        const invalidEmails = [
+          ...findInvalidEmails(this.grantAdmins),
+          ...findInvalidEmailGroups(this.grantManagers),
+          ...findInvalidEmailGroups(this.PIs),
+          ...findInvalidEmailGroups(this.teamMembers),
+        ]
+
+        if (invalidEmails.length > 0) {
+          alert('Cannot save. Some emails are invalid or empty.')
+          return // Stop execution if invalid emails exist
+        }
+
+        // 🚀 Apply the fix: Ensure PIs and Team Members are formatted correctly
+        const emailListsData = {
+          grantAdmins: formatEmails(this.grantAdmins),
+          grantManagers: formatEmailGroups(this.grantManagers),
+          PIs: formatNestedEmailGroups(this.PIs), // ✅ Fix for PIs
+          teamMembers: formatNestedEmailGroups(this.teamMembers), // ✅ Fix for Team Members
+        }
+
+        console.log('Sending payload:', emailListsData) // 🔍 Debugging step
 
         const response = await fetch(`${API_BASE_URL}/email-lists`, {
           method: 'PUT',

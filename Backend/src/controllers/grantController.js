@@ -1,15 +1,51 @@
-const Grant = require('../models/Grant')
+const Grant = require("../models/Grant");
+const { sendEmailByTemplate } = require("../services/emailService");
+const EmailList = require("../models/EmailList");
 
-// Create a new grant proposal
 exports.createGrant = async (req, res) => {
   try {
-    const newGrant = new Grant(req.body)
-    await newGrant.save()
-    res.status(201).json({ message: 'Grant proposal created successfully', grant: newGrant })
+    const newGrant = new Grant(req.body);
+    await newGrant.save();
+
+    // Extract necessary details for email
+    const { piFirstName, piLastName, piEmail, piDivision, projectTitle } = req.body;
+
+    // 🚀 Fetch recipients from EmailList
+    const emailList = await EmailList.findOne();
+    let recipients = [];
+
+    // Grant Admins receive all submissions
+    if (emailList?.grantAdmins) {
+      recipients = recipients.concat(emailList.grantAdmins.map((admin) => admin.email));
+    }
+
+    // Grant Managers of the same division should also receive the notification
+    if (emailList?.grantManagers?.[piDivision]) {
+      recipients = recipients.concat(emailList.grantManagers[piDivision].map((mgr) => mgr.email));
+    }
+
+    // Remove duplicates
+    recipients = [...new Set(recipients)];
+
+    if (recipients.length > 0) {
+      // 🚀 Send email notification using the template
+      await sendEmailByTemplate("INTAKE_FORM_SUBMITTED", {
+        piName: `${piFirstName} ${piLastName}`,
+        piLastName,
+        piEmail,
+        projectTitle,
+        piDivision,
+      }, recipients);
+    }
+
+    res.status(201).json({ message: "Grant proposal created successfully", grant: newGrant });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error("❌ Error creating grant proposal:", err);
+    res.status(500).json({ error: err.message });
   }
-}
+};
+
+
 
 // Get all grant proposals
 exports.getAllGrants = async (req, res) => {

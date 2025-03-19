@@ -72,6 +72,11 @@ const router = createRouter({
       component: () => import('@/views/TeamManagement.vue'),
       meta: { requiresPI: true }, // Restrict access to PI and Proxy PI
     },
+    {
+      path: '/email-list-management',
+      name: 'EmailListManagement',
+      component: () => import('@/views/EmailListManagement.vue'),
+    },
   ],
 })
 

@@ -9,6 +9,7 @@ const passport = require('passport')
 
 const authRoutes = require('./routes/authRoutes')
 const grantRoutes = require('./routes/grantRoutes')
+const emailListRoutes = require('./routes/emailListRoutes') // Import email list routes
 require('./config/passport') // Import passport configuration
 
 connectDB() // Connect to MongoDB
@@ -21,6 +22,7 @@ app.use(morgan('dev'))
 
 app.use('/api/auth', authRoutes)
 app.use('/api/grants', grantRoutes)
+app.use('/api/email-lists', emailListRoutes) // Integrate email list routes
 
 // app.use(
 //   cors({

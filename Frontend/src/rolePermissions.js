@@ -10,6 +10,7 @@ export const rolePermissions = {
       '/grant',
       '/grant/:id',
       '/user-management',
+      '/email-list-management',
     ],
     sidebar: [
       {
@@ -26,6 +27,11 @@ export const rolePermissions = {
         title: 'User Management',
         icon: 'mdi-account-group',
         to: '/user-management',
+      },
+      {
+        title: 'Email List Management',
+        icon: 'mdi-bell-cog',
+        to: '/email-list-management',
       },
     ],
   },

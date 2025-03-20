@@ -8,7 +8,15 @@ exports.createGrant = async (req, res) => {
     await newGrant.save();
 
     // Extract necessary details for email
-    const { piFirstName, piLastName, piEmail, piDivision, projectTitle } = req.body;
+    const {
+      piFirstName,
+      piLastName,
+      piEmail,
+      piDivision,
+      projectTitle,
+      consultClinicalTrials,
+      consultDOMCTU
+    } = req.body;
 
     // 🚀 Fetch recipients from EmailList
     const emailList = await EmailList.findOne();
@@ -27,8 +35,8 @@ exports.createGrant = async (req, res) => {
     // Remove duplicates
     recipients = [...new Set(recipients)];
 
+    // 🚀 Send email notification to grant managers and admins
     if (recipients.length > 0) {
-      // 🚀 Send email notification using the template
       await sendEmailByTemplate("INTAKE_FORM_SUBMITTED", {
         piName: `${piFirstName} ${piLastName}`,
         piLastName,
@@ -38,7 +46,29 @@ exports.createGrant = async (req, res) => {
       }, recipients);
     }
 
+    // 🚀 Send confirmation email to the PI
+    await sendEmailByTemplate("INTAKE_FORM_CONFIRMATION", {}, [piEmail]);
+
+    // 🚀 Send Clinical Trials Consultation request if applicable
+    if (consultClinicalTrials === "yes") {
+      const clinicalTrialRecipients = ["veyyspam2@gmail.com", "cheryl@example.com"]; // Update actual emails
+      await sendEmailByTemplate("CLINICAL_TRIALS_CONSULTATION", {
+        piLastName,
+        piDivision,
+      }, clinicalTrialRecipients);
+    }
+
+    // 🚀 Send DOM CTU Consultation request if applicable
+    if (consultDOMCTU === "yes") {
+      const domCTURecipients = ["dom-ctu-support@example.com"]; // Update actual email
+      await sendEmailByTemplate("DOM_CTU_CONSULTATION", {
+        piLastName,
+        piDivision,
+      }, domCTURecipients);
+    }
+
     res.status(201).json({ message: "Grant proposal created successfully", grant: newGrant });
+
   } catch (err) {
     console.error("❌ Error creating grant proposal:", err);
     res.status(500).json({ error: err.message });
@@ -93,9 +123,9 @@ exports.updateGrant = async (req, res) => {
 exports.updateAdditionalData = async (req, res) => {
   try {
     const { id } = req.params
-    const { timeline, tasklist, selectedTemplateTimeline, selectedTemplateTaskList } = req.body
+    const { timeline, tasklist, selectedTemplateTimeline, selectedTemplateTaskList, ackPi } = req.body
 
-    // Create an empty object to hold only the fields that are present in the request
+    // Create an object to hold only the fields that are present in the request
     let updateFields = {}
 
     if (timeline !== undefined) updateFields['additionalData.timeline'] = timeline
@@ -104,6 +134,7 @@ exports.updateAdditionalData = async (req, res) => {
       updateFields['additionalData.selectedTemplateTimeline'] = selectedTemplateTimeline
     if (selectedTemplateTaskList !== undefined)
       updateFields['additionalData.selectedTemplateTaskList'] = selectedTemplateTaskList
+    if (ackPi !== undefined) updateFields['additionalData.ackPi'] = ackPi // ✅ Include ackPi
 
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: 'No valid fields provided for update' })
@@ -111,7 +142,7 @@ exports.updateAdditionalData = async (req, res) => {
 
     const updatedGrant = await Grant.findByIdAndUpdate(
       id,
-      { $set: updateFields }, // Only update fields present in the request
+      { $set: updateFields }, // ✅ Update only the fields provided
       { new: true }
     )
 
@@ -147,29 +178,42 @@ exports.deleteGrant = async (req, res) => {
   }
 }
 
-// Update grant status (Accept/Reject)
+// Update grant status (Accept/Reject/Needs Modification)
 exports.updateGrantStatus = async (req, res) => {
   try {
-    const { status, rejectionNote } = req.body
+    const { status, rejectionNote } = req.body;
 
-    if (
-      !['pending', 'accepted', 'needs modification', 'accepted - pending meeting with GM'].includes(
-        status
-      )
-    ) {
-      return res.status(400).json({ message: 'Invalid status value' })
+    if (!['pending', 'accepted', 'needs modification', 'accepted - pending meeting with GM'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
     }
 
     const grant = await Grant.findByIdAndUpdate(
       req.params.id,
       { status, rejectionNote },
       { new: true }
-    )
+    );
 
-    if (!grant) return res.status(404).json({ message: 'Grant proposal not found' })
+    if (!grant) return res.status(404).json({ message: 'Grant proposal not found' });
 
-    res.status(200).json({ message: `Grant ${status}`, grant })
+    // 🚀 Prepare email notification
+    const { piFirstName, piLastName, piEmail, piDivision, projectTitle } = grant;
+    const emailData = {
+      piLastName,
+      piEmail,
+      piDivision,
+      projectTitle,
+      additionalInfo: rejectionNote, // Use rejectionNote as additional info if modification is needed
+    };
+
+    if (status === 'accepted') {
+      await sendEmailByTemplate('INTAKE_FORM_ACCEPTED', emailData, [piEmail]);
+    } else if (status === 'needs modification') {
+      await sendEmailByTemplate('INTAKE_FORM_MODIFICATION', emailData, [piEmail]);
+    }
+
+    res.status(200).json({ message: `Grant ${status}`, grant });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error("❌ Error updating grant status:", err);
+    res.status(500).json({ error: err.message });
   }
-}
+};

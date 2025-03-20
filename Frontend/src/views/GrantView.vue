@@ -17,13 +17,15 @@
       Approve and Send to PI
     </v-btn>
 
-    <v-container v-if="grant && isPI && grant.status === 'accepted' && !grant.ackPI">
+    <v-container
+      v-if="grant && isPI && grant.status === 'accepted' && !grant.additionalData?.ackPi"
+    >
       <v-card class="acknowledgment-card" outlined>
         <v-card-text>
           <v-checkbox
             v-model="tempAcknowledgePI"
             label="I agree with the timeline and task list for this proposal."
-            @change="confirmAcknowledgment"
+            @update:modelValue="confirmAcknowledgment"
           ></v-checkbox>
         </v-card-text>
       </v-card>
@@ -222,11 +224,17 @@ export default {
       try {
         const id = this.$route.params.id
         const response = await fetch(`${API_BASE_URL}/grants/${id}`)
-        this.grant = await response.json()
+        const data = await response.json()
+
+        this.grant = data
+        if (!this.grant.additionalData) {
+          this.grant.additionalData = {} // Ensure additionalData exists
+        }
       } catch (error) {
         console.error('Error fetching grant:', error)
       }
     },
+
     formatFieldName(key) {
       if (key === 'rejectionNote') {
         return "Grant Manager's note for modifications required"
@@ -276,34 +284,33 @@ export default {
     async acknowledge() {
       try {
         const id = this.$route.params.id
-        await fetch(`${API_BASE_URL}/grants/${id}/status`, {
+        await fetch(`${API_BASE_URL}/grants/${id}/additionalData`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: this.grant.status, ackPI: true }),
+          body: JSON.stringify({
+            ackPi: true, // Save acknowledgment in additionalData
+          }),
         })
-        this.grant.ackPI = true // Update UI
+
+        // ✅ Update UI after acknowledgment
+        if (!this.grant.additionalData) {
+          this.grant.additionalData = {} // Ensure additionalData exists
+        }
+        this.grant.additionalData.ackPi = true
+
         this.acknowledgmentDialog = false
-        alert('Acknowledgment has been sent.')
+        alert('Acknowledgment has been saved successfully.')
       } catch (error) {
-        console.error('Error acknowledging proposal:', error)
+        console.error('Error saving acknowledgment:', error)
       }
     },
+
     confirmAcknowledgment() {
+      console.log("tempack", this.tempAcknowledgePI)
       if (this.tempAcknowledgePI) {
         this.acknowledgmentDialog = true
       }
-    },
-    acknowledge() {
-      this.grant.ackPI = true
-      this.acknowledgePI = true
-      useGrantProposalsStore().updateProposalStatus(
-        this.grant.id,
-        this.grant.status,
-        'Acknowledged by PI',
-      )
-      this.acknowledgmentDialog = false
-      alert('Acknowledgment has been sent.')
-    },
+    }
   },
   watch: {
     acknowledgmentDialog(val) {

@@ -36,22 +36,22 @@
               <v-select
                 v-model="formData.piDivision"
                 :items="[
-                  { text: 'Cardiology (586003)', value: '586003' },
-                  { text: 'GI/Hepatology (586004)', value: '586004' },
-                  { text: 'AIM (586006)', value: '586006' },
-                  { text: 'Hem/Onc (586008)', value: '586008' },
-                  { text: 'Infectious Diseases (586009)', value: '586009' },
-                  { text: 'Pulmonary (586009)', value: '586009' },
-                  { text: 'Nephrology (586010)', value: '586010' },
-                  { text: 'Rheumatology (586012)', value: '586012' },
-                  { text: 'Endocrinology (586015)', value: '586015' },
+                  { text: 'Cardiology (586003)', value: 'Cardiology (586003)' },
+                  { text: 'GI/Hepatology (586004)', value: 'GI/Hepatology (586004)' },
+                  { text: 'AIM (586006)', value: 'AIM (586006)' },
+                  { text: 'Hem/Onc (586008)', value: 'Hem/Onc (586008)' },
+                  { text: 'Infectious Diseases (586009)', value: 'Infectious Diseases (586009)' },
+                  { text: 'Pulmonary (586009)', value: 'Pulmonary (586009)' },
+                  { text: 'Nephrology (586010)', value: 'Nephrology (586010)' },
+                  { text: 'Rheumatology (586012)', value: 'Rheumatology (586012)' },
+                  { text: 'Endocrinology (586015)', value: 'Endocrinology (586015)' },
                   {
                     text: 'Institute for Minority Health Research (IMHR) (586020)',
-                    value: '586020',
+                    value: 'Institute for Minority Health Research (IMHR) (586020)',
                   },
                   {
                     text: 'Center for Dissemination & Implementation Science (CDIS) (586030)',
-                    value: '586030',
+                    value: 'Center for Dissemination & Implementation Science (CDIS) (586030)',
                   },
                 ]"
                 item-title="text"
@@ -266,18 +266,83 @@
                   </v-card-text>
                 </v-card>
               </template>
-
+              <!--  -->
+              <v-menu
+                ref="menu"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                :return-value.sync="formData.sponsorDeadlineDate"
+                transition="scale-transition"
+                offset-y
+                attach
+                min-width="auto"
+              >
+                <template #activator="{ props }">
+                  <v-text-field
+                    v-model="formattedSponsorDeadline"
+                    label="Sponsor Deadline (Date)"
+                    v-bind="props"
+                    readonly
+                    required
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  :allowed-dates="allowedDates"
+                  v-model="formData.sponsorDeadlineDate"
+                  @update:modelValue="updateFormattedDate"
+                ></v-date-picker>
+              </v-menu>
+              <!--  -->
               <!-- Project Details -->
-              <v-text-field
-                v-model="formData.projectStartDate"
-                label="Project Start Date"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="formData.projectEndDate"
-                label="Project End Date"
-                required
-              ></v-text-field>
+              <v-menu
+                ref="menuStartDate"
+                :return-value.sync="formData.projectStartDate"
+                :close-on-content-click="false"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+                :nudge-right="40"
+                attach
+              >
+                <template #activator="{ props }">
+                  <v-text-field
+                    v-model="formattedProjectStartDate"
+                    label="Project Start Date"
+                    v-bind="props"
+                    readonly
+                    required
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  :allowed-dates="allowedDates"
+                  v-model="formData.projectStartDate"
+                  @update:modelValue="updateFormattedProjectStartDate"
+                ></v-date-picker>
+              </v-menu>
+
+              <v-menu
+                ref="menuEndDate"
+                v-model="menuEndDate"
+                :close-on-content-click="false"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template #activator="{ props }">
+                  <v-text-field
+                    v-model="formattedProjectEndDate"
+                    label="Project End Date"
+                    v-bind="props"
+                    readonly
+                    required
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="formData.projectEndDate"
+                  @update:modelValue="updateFormattedProjectEndDate"
+                ></v-date-picker>
+              </v-menu>
+
               <v-text-field
                 v-model="formData.projectTitle"
                 label="Project Title"
@@ -470,6 +535,10 @@ export default {
       isFormValid: false,
       isDialogOpen: false,
       menu: false,
+      menuStartDate: false,
+      menuEndDate: false,
+      formattedProjectStartDate: '',
+      formattedProjectEndDate: '',
       formData: {
         piFirstName: '',
         piLastName: '',
@@ -491,8 +560,8 @@ export default {
         isClinicalTrial: '',
         consultClinicalTrials: '',
         consultDOMCTU: '',
-        projectStartDate: '',
-        projectEndDate: '',
+        projectStartDate: new Date(),
+        projectEndDate: new Date(),
         projectTitle: '',
         keyPersonnel: [],
         hasSubcontracts: '',
@@ -504,6 +573,27 @@ export default {
     }
   },
   methods: {
+    updateFormattedProjectStartDate() {
+      if (this.formData.projectStartDate) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' }
+        this.formattedProjectStartDate = new Date(
+          this.formData.projectStartDate,
+        ).toLocaleDateString('en-US', options)
+      } else {
+        this.formattedProjectStartDate = ''
+      }
+    },
+    updateFormattedProjectEndDate() {
+      if (this.formData.projectEndDate) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' }
+        this.formattedProjectEndDate = new Date(this.formData.projectEndDate).toLocaleDateString(
+          'en-US',
+          options,
+        )
+      } else {
+        this.formattedProjectEndDate = ''
+      }
+    },
     openConfirmDialog() {
       this.isDialogOpen = true
     },
@@ -620,6 +710,10 @@ export default {
     'formData.sponsorDueDate'(newValue) {
       this.updateFormattedDate()
     },
+  },
+  mounted() {
+    this.projectStartDate = new Date()
+    this.projectEndDate = new Date()
   },
 }
 </script>

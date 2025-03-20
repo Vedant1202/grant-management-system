@@ -12,6 +12,7 @@ const grantRoutes = require('./routes/grantRoutes')
 const emailListRoutes = require('./routes/emailListRoutes') // Import email list routes
 require('./config/passport') // Import passport configuration
 const emailRoutes = require("./routes/emailRoutes");
+const sendFinalReviewReminders = require("./jobs/finalReviewReminder");
 
 connectDB() // Connect to MongoDB
 
@@ -26,14 +27,6 @@ app.use('/api/grants', grantRoutes)
 app.use('/api/email-lists', emailListRoutes) // Integrate email list routes
 app.use("/api/email", emailRoutes);
 
-// app.use(
-//   cors({
-//     origin: 'http://localhost:5173', // Update this with your Vue.js frontend URL
-//     methods: 'GET,POST,PUT,DELETE',
-//     credentials: true,
-//   })
-// )
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -45,7 +38,8 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-console.log(process.env.PORT)
+// Start the scheduled job
+sendFinalReviewReminders();
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

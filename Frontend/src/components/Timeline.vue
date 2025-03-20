@@ -25,6 +25,33 @@
             @update:modelValue="onTemplateChange"
           />
         </v-col>
+        <v-col cols="12" sm="4">
+          <v-menu
+            v-model="projectDeadlineMenu"
+            :nudge-right="40"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            attach="body"
+          >
+            <template #activator="{ props }">
+              <v-text-field
+                v-model="formattedProjectDate"
+                label="Project Completion Date"
+                readonly
+                v-bind="props"
+                outlined
+                dense
+                required
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="projectCompletionDate"
+              @update:model-value="handleProjectDateChange"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+
         <v-col cols="12" sm="6">
           <v-btn color="primary" outlined @click="applyTemplate"> Apply Template </v-btn>
         </v-col>
@@ -245,17 +272,24 @@ export default {
         isMajor: false,
         completed: false,
       },
+      projectCompletionDate: new Date(this.grant.sponsorDeadlineDate) || new Date(), // Default to sponsor deadline
+      formattedProjectDate: '',
       timeline: [], // Store fetched timeline
       templateOptions: ['DOM Default Timeline'], // Add template names
       selectedTemplate: null,
       isEditing: false,
       editingIndex: null,
       menu: false, // Controls date picker menu
+      projectDeadlineMenu: false, // Controls date picker menu
       showTimeline: true, // Controls the visibility of the timeline
     }
   },
   computed: {
     computed: {
+      // formattedProjectDate() {
+      //   console.log('format proj- ', this.formatDate(this.projectCompletionDate))
+      //   return this.formatDate(this.projectCompletionDate)
+      // },
       sponsorDueDate() {
         if (!this.grant) {
           console.error('Grant data is not available.')
@@ -335,6 +369,16 @@ export default {
     },
   },
   methods: {
+    handleProjectDateChange(newDate) {
+      this.projectCompletionDate = newDate
+      console.log('Project Completion Date updated:', newDate)
+
+      this.formattedProjectDate = this.formatDate(this.projectCompletionDate)
+
+      this.projectDeadlineMenu = false
+      // Apply template when the project completion date is changed
+      // this.applyTemplate();
+    },
     async fetchTimeline() {
       if (this.grant && this.grant.additionalData) {
         this.timeline = [...(this.grant.additionalData.timeline || [])] // Load timeline if available
@@ -344,9 +388,11 @@ export default {
         this.selectedTemplate = null
       }
 
-      // ✅ Set default completion date as sponsorDueDate if available
-      if (this.sponsorDueDate) {
-        this.currentItem.date = this.sponsorDueDate
+      // ✅ Set project completion date from sponsorDeadlineDate
+      if (this.grant.sponsorDeadlineDate) {
+        console.log('date-', this.grant.sponsorDeadlineDate)
+        this.handleProjectDateChange(new Date(this.grant.sponsorDeadlineDate))
+        // this.projectCompletionDate = new Date(this.grant.sponsorDeadlineDate)
       }
     },
 
@@ -392,7 +438,7 @@ export default {
 
       this.loadTemplateData(this.selectedTemplate).then((templateData) => {
         const newItems = templateData.map((item) => {
-          const calculatedDate = this.calculateDueDate(item.Date, sponsorDate)
+          const calculatedDate = this.calculateDueDate(item.Date, this.projectCompletionDate)
           console.log('📌 Calculated Date for', item.Description, '->', calculatedDate)
 
           return {

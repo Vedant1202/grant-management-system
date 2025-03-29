@@ -306,11 +306,11 @@ export default {
     },
 
     confirmAcknowledgment() {
-      console.log("tempack", this.tempAcknowledgePI)
+      console.log('tempack', this.tempAcknowledgePI)
       if (this.tempAcknowledgePI) {
         this.acknowledgmentDialog = true
       }
-    }
+    },
   },
   watch: {
     acknowledgmentDialog(val) {

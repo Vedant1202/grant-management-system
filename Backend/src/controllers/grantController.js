@@ -1,11 +1,11 @@
-const Grant = require("../models/Grant");
-const { sendEmailByTemplate } = require("../services/emailService");
-const EmailList = require("../models/EmailList");
+const Grant = require('../models/Grant')
+const { sendEmailByTemplate } = require('../services/emailService')
+const EmailList = require('../models/EmailList')
 
 exports.createGrant = async (req, res) => {
   try {
-    const newGrant = new Grant(req.body);
-    await newGrant.save();
+    const newGrant = new Grant(req.body)
+    await newGrant.save()
 
     // Extract necessary details for email
     const {
@@ -15,67 +15,78 @@ exports.createGrant = async (req, res) => {
       piDivision,
       projectTitle,
       consultClinicalTrials,
-      consultDOMCTU
-    } = req.body;
+      consultDOMCTU,
+    } = req.body
 
     // 🚀 Fetch recipients from EmailList
-    const emailList = await EmailList.findOne();
-    let recipients = [];
+    const emailList = await EmailList.findOne()
+    let recipients = []
 
     // Grant Admins receive all submissions
     if (emailList?.grantAdmins) {
-      recipients = recipients.concat(emailList.grantAdmins.map((admin) => admin.email));
+      recipients = recipients.concat(emailList.grantAdmins.map((admin) => admin.email))
     }
 
     // Grant Managers of the same division should also receive the notification
-    if (emailList?.grantManagers?.[piDivision]) {
-      recipients = recipients.concat(emailList.grantManagers[piDivision].map((mgr) => mgr.email));
+    if (emailList?.grantManagers && emailList.grantManagers.get(piDivision)) {
+      recipients = recipients.concat(
+        emailList.grantManagers.get(piDivision).map((mgr) => mgr.email)
+      )
     }
 
     // Remove duplicates
-    recipients = [...new Set(recipients)];
+    recipients = [...new Set(recipients)]
 
     // 🚀 Send email notification to grant managers and admins
     if (recipients.length > 0) {
-      await sendEmailByTemplate("INTAKE_FORM_SUBMITTED", {
-        piName: `${piFirstName} ${piLastName}`,
-        piLastName,
-        piEmail,
-        projectTitle,
-        piDivision,
-      }, recipients);
+      await sendEmailByTemplate(
+        'INTAKE_FORM_SUBMITTED',
+        {
+          piName: `${piFirstName} ${piLastName}`,
+          piLastName,
+          piEmail,
+          projectTitle,
+          piDivision,
+        },
+        recipients
+      )
     }
 
     // 🚀 Send confirmation email to the PI
-    await sendEmailByTemplate("INTAKE_FORM_CONFIRMATION", {}, [piEmail]);
+    await sendEmailByTemplate('INTAKE_FORM_CONFIRMATION', {}, [piEmail])
 
     // 🚀 Send Clinical Trials Consultation request if applicable
-    if (consultClinicalTrials === "yes") {
-      const clinicalTrialRecipients = ["veyyspam2@gmail.com", "cheryl@example.com"]; // Update actual emails
-      await sendEmailByTemplate("CLINICAL_TRIALS_CONSULTATION", {
-        piLastName,
-        piDivision,
-      }, clinicalTrialRecipients);
+    if (consultClinicalTrials === 'yes') {
+      const clinicalTrialRecipients = ['veyyspam2@gmail.com', 'cheryl@example.com'] // Update actual emails
+      await sendEmailByTemplate(
+        'CLINICAL_TRIALS_CONSULTATION',
+        {
+          piLastName,
+          piDivision,
+        },
+        clinicalTrialRecipients
+      )
     }
 
     // 🚀 Send DOM CTU Consultation request if applicable
-    if (consultDOMCTU === "yes") {
-      const domCTURecipients = ["dom-ctu-support@example.com"]; // Update actual email
-      await sendEmailByTemplate("DOM_CTU_CONSULTATION", {
-        piLastName,
-        piDivision,
-      }, domCTURecipients);
+    if (consultDOMCTU === 'yes') {
+      const domCTURecipients = ['dom-ctu-support@example.com'] // Update actual email
+      await sendEmailByTemplate(
+        'DOM_CTU_CONSULTATION',
+        {
+          piLastName,
+          piDivision,
+        },
+        domCTURecipients
+      )
     }
 
-    res.status(201).json({ message: "Grant proposal created successfully", grant: newGrant });
-
+    res.status(201).json({ message: 'Grant proposal created successfully', grant: newGrant })
   } catch (err) {
-    console.error("❌ Error creating grant proposal:", err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error creating grant proposal:', err)
+    res.status(500).json({ error: err.message })
   }
-};
-
-
+}
 
 // Get all grant proposals
 exports.getAllGrants = async (req, res) => {
@@ -123,7 +134,8 @@ exports.updateGrant = async (req, res) => {
 exports.updateAdditionalData = async (req, res) => {
   try {
     const { id } = req.params
-    const { timeline, tasklist, selectedTemplateTimeline, selectedTemplateTaskList, ackPi } = req.body
+    const { timeline, tasklist, selectedTemplateTimeline, selectedTemplateTaskList, ackPi } =
+      req.body
 
     // Create an object to hold only the fields that are present in the request
     let updateFields = {}
@@ -181,39 +193,43 @@ exports.deleteGrant = async (req, res) => {
 // Update grant status (Accept/Reject/Needs Modification)
 exports.updateGrantStatus = async (req, res) => {
   try {
-    const { status, rejectionNote } = req.body;
+    const { status, rejectionNote } = req.body
 
-    if (!['pending', 'accepted', 'needs modification', 'accepted - pending meeting with GM'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value' });
+    if (
+      !['pending', 'accepted', 'needs modification', 'accepted - pending meeting with GM'].includes(
+        status
+      )
+    ) {
+      return res.status(400).json({ message: 'Invalid status value' })
     }
 
     const grant = await Grant.findByIdAndUpdate(
       req.params.id,
       { status, rejectionNote },
       { new: true }
-    );
+    )
 
-    if (!grant) return res.status(404).json({ message: 'Grant proposal not found' });
+    if (!grant) return res.status(404).json({ message: 'Grant proposal not found' })
 
     // 🚀 Prepare email notification
-    const { piFirstName, piLastName, piEmail, piDivision, projectTitle } = grant;
+    const { piFirstName, piLastName, piEmail, piDivision, projectTitle } = grant
     const emailData = {
       piLastName,
       piEmail,
       piDivision,
       projectTitle,
       additionalInfo: rejectionNote, // Use rejectionNote as additional info if modification is needed
-    };
-
-    if (status === 'accepted') {
-      await sendEmailByTemplate('INTAKE_FORM_ACCEPTED', emailData, [piEmail]);
-    } else if (status === 'needs modification') {
-      await sendEmailByTemplate('INTAKE_FORM_MODIFICATION', emailData, [piEmail]);
     }
 
-    res.status(200).json({ message: `Grant ${status}`, grant });
+    if (status === 'accepted') {
+      await sendEmailByTemplate('INTAKE_FORM_ACCEPTED', emailData, [piEmail])
+    } else if (status === 'needs modification') {
+      await sendEmailByTemplate('INTAKE_FORM_MODIFICATION', emailData, [piEmail])
+    }
+
+    res.status(200).json({ message: `Grant ${status}`, grant })
   } catch (err) {
-    console.error("❌ Error updating grant status:", err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error updating grant status:', err)
+    res.status(500).json({ error: err.message })
   }
-};
+}

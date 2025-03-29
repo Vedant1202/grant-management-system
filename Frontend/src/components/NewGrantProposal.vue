@@ -443,6 +443,36 @@
                 label="Does the project involve any of the following?"
                 multiple
               ></v-select>
+              <v-card class="clinical-trial-info">
+                <v-card-title class="info-title"
+                  >What is a Conflict of Interest (COI)?</v-card-title
+                >
+                <v-card-text>
+                  <p>Conflict of Interest:</p>
+                  <ul class="info-list">
+                    <li>
+                      <strong>a.</strong> Exists when the Covered Individual engages in Outside
+                      Activities that may directly or indirectly influence the Covered Individual’s
+                      professional judgment in exercising any University Responsibilities to the
+                      actual or potential detriment of the University.
+                    </li>
+                    <li>
+                      <strong>b.</strong> Exists when a Covered Individual is in a position to
+                      directly or indirectly influence University business, research, or other
+                      University activities in ways that could lead to personal gain for the Covered
+                      Individual, or a Covered Individual’s Immediate Family Member, to the
+                      potential detriment of the University; or
+                    </li>
+                    <li>
+                      <strong>c.</strong> Exists when a Covered Individual, or a Covered
+                      Individual’s Immediate Family Member, is or seeks to be in a vendor or
+                      contracting relationship with the University, whether directly or by having a
+                      financial or ownership interest in a vendor or contractor doing business with
+                      the University.
+                    </li>
+                  </ul>
+                </v-card-text>
+              </v-card>
               <v-radio-group
                 v-model="formData.hasConflictOfInterest"
                 label="Is there a conflict of interest?"

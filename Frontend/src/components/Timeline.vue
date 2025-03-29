@@ -583,6 +583,7 @@ export default {
 
     editItem(item) {
       this.currentItem = { ...item }
+      this.currentItem.date = new Date(item.date)
       this.isEditing = true
       this.editingIndex = this.timeline.indexOf(item)
       this.formattedDate = this.formatDate(item.date)

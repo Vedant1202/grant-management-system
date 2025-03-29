@@ -22,56 +22,58 @@ exports.saveEmailLists = async (req, res) => {
       return emails.map((email) => (typeof email === 'string' ? { email, enabled: true } : email))
     }
 
-    // Helper: Combine nested keys for PIs and teamMembers into one emails array per division.
-    // This function will iterate through all nested keys (like "New PI") and merge their emails.
-    const combineNestedEmails = (groups) => {
-      const result = {}
-      for (const division in groups) {
-        let combinedEmails = []
-        for (const subKey in groups[division]) {
-          if (groups[division][subKey] && Array.isArray(groups[division][subKey].emails)) {
-            combinedEmails.push(...formatEmails(groups[division][subKey].emails))
-          }
-        }
-        result[division] = { emails: combinedEmails }
-      }
-      return result
-    }
-
-    const { grantAdmins, grantManagers, PIs, teamMembers, additionalData } = req.body
+    // Map payload keys to match the model fields.
+    // The payload may use keys like "Grant admins" or "Grant Managers"
+    const payloadGrantAdmins = req.body['Grant admins'] || req.body.grantAdmins || []
+    const payloadGrantManagers = req.body['Grant Managers'] || req.body.grantManagers || {}
+    const payloadPIs = req.body.PIs || {}
+    const payloadAdditionalData = req.body.additionalData || {}
 
     let emailLists = await EmailList.findOne()
     if (!emailLists) {
       emailLists = new EmailList()
     }
 
-    // Replace previous data with the new data from payload.
-    emailLists.grantAdmins = formatEmails(grantAdmins || [])
+    // Process grantAdmins: expecting an array of email entries.
+    emailLists.grantAdmins = formatEmails(payloadGrantAdmins)
 
-    // For grantManagers, build a new object and assign a new Map.
+    // Process grantManagers: expecting an object whose keys are division names and values are arrays.
     const formattedGrantManagers = {}
-    for (const division in grantManagers || {}) {
-      formattedGrantManagers[division] = formatEmails(grantManagers[division] || [])
+    for (const division in payloadGrantManagers) {
+      formattedGrantManagers[division] = formatEmails(payloadGrantManagers[division] || [])
     }
-    emailLists.grantManagers = new Map(Object.entries(formattedGrantManagers))
+    // Assign as a plain object; Mongoose will cast it to a Map.
+    emailLists.grantManagers = formattedGrantManagers
 
-    // Process PIs: Combine nested keys into one emails array per division and then replace.
-    const formattedPIs = combineNestedEmails(PIs || {})
-    emailLists.PIs = new Map(Object.entries(formattedPIs))
+    // Process PIs:
+    // Expected shape: an object with division keys. Each division is an object with PI names as keys.
+    // Each PI value should be an object with keys "email", "Co-PI", and "Team-members" (arrays).
+    const formattedPIs = {}
+    for (const division in payloadPIs) {
+      const divisionPIs = payloadPIs[division]
+      const formattedDivisionPIs = {}
+      for (const piName in divisionPIs) {
+        const piData = divisionPIs[piName]
+        formattedDivisionPIs[piName] = {
+          email: formatEmails(piData.email || []),
+          'Co-PI': formatEmails(piData['Co-PI'] || []),
+          'Team-members': formatEmails(piData['Team-members'] || []),
+        }
+      }
+      formattedPIs[division] = formattedDivisionPIs
+    }
+    // Assign as a plain object; Mongoose will cast it to a nested Map structure.
+    emailLists.PIs = formattedPIs
 
-    // Process teamMembers similarly.
-    const formattedTeamMembers = combineNestedEmails(teamMembers || {})
-    emailLists.teamMembers = new Map(Object.entries(formattedTeamMembers))
+    // Process additionalData.
+    emailLists.additionalData = payloadAdditionalData
 
-    // Replace additionalData.
-    emailLists.additionalData = additionalData || {}
-
-    // Mark fields as modified so that Mongoose detects the updates.
+    // Mark fields as modified so Mongoose detects the updates.
     emailLists.markModified('grantAdmins')
     emailLists.markModified('grantManagers')
     emailLists.markModified('PIs')
-    emailLists.markModified('teamMembers')
-
+    emailLists.markModified('additionalData')
+    console.log(emailLists.grantAdmins)
     await emailLists.save()
 
     res.json({ message: 'Email lists saved successfully!' })

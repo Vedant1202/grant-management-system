@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4>{{ title }}</h4>
-    <v-row v-for="(entry, index) in emails" :key="index" class="mb-2">
+    <v-row v-for="(entry, index) in emails" :key="index" class="mb-2 pa-3">
       <v-text-field
         v-model="entry.email"
         label="Email"

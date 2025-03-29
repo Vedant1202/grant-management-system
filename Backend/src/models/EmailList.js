@@ -8,35 +8,38 @@ const EmailEntrySchema = new mongoose.Schema(
   { _id: false }
 )
 
+// New sub-schema for each PI entry
+const PISubSchema = new mongoose.Schema(
+  {
+    email: [EmailEntrySchema],
+    'Co-PI': [EmailEntrySchema],
+    'Team-members': [EmailEntrySchema],
+  },
+  { _id: false }
+)
+
 const EmailListSchema = new mongoose.Schema(
   {
-    grantAdmins: [EmailEntrySchema], // List of Grant Admins emails as objects
+    // List of Grant Admins emails as objects
+    grantAdmins: [EmailEntrySchema],
 
+    // Each division → array of email objects
     grantManagers: {
       type: Map,
-      of: [EmailEntrySchema], // Each division → array of email objects
+      of: [EmailEntrySchema],
       default: {},
     },
 
+    // PIs is now a nested Map:
+    // - Key (first level): division name.
+    // - Value (second level): a Map where key is the PI name and value is a subdocument following PISubSchema.
     PIs: {
       type: Map,
-      of: new mongoose.Schema(
-        {
-          emails: [EmailEntrySchema], // PIs per division → list of email objects
-        },
-        { _id: false }
-      ),
-      default: {},
-    },
-
-    teamMembers: {
-      type: Map,
-      of: new mongoose.Schema(
-        {
-          emails: [EmailEntrySchema], // Team Members per PI → list of email objects
-        },
-        { _id: false }
-      ),
+      of: {
+        type: Map,
+        of: PISubSchema,
+        default: {},
+      },
       default: {},
     },
 

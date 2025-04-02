@@ -7,9 +7,9 @@
         <v-card class="info-section mb-6">
           <v-card-title class="headline primary--text"> Pre-Award Support </v-card-title>
           <v-card-text>
-            Please complete this form to request Pre-award Proposal Development and ensure timely
-            submission. ALL proposals must be routed through the Grants & Contracts Associate/Grant
-            Manager for your division.
+            Please complete this intake form to request Pre-award Proposal Development to ensure a
+            timely submission. All intake forms will be routed to the designated Grants & Contracts
+            Associate/Grant Manager in your unit.
             <!-- <v-btn color="primary" class="mt-4" @click="scrollToForm">
               Fill Intent to Submit Form
             </v-btn> -->
@@ -519,16 +519,44 @@
           <v-card-text>
             <ul>
               <li>
-                <a href="#" class="link">Proposal Submission Best Practices</a>
+                <a
+                  href="https://research.uic.edu/principal-investigator-eligibility-and-approval-procedures/"
+                  class="link"
+                  >Principal Investigator Eligibility and Approval Procedures | Office of the Vice
+                  Chancellor for Research | University of Illinois Chicago</a
+                >
               </li>
               <li>
-                <a href="#" class="link">Proposal Review</a>
+                <a
+                  href="https://research.uic.edu/sponsoredprograms/proposals/how-do-i-build-a-budget/"
+                  class="link"
+                  >How Do I Build a Budget? | Office of the Vice Chancellor for Research |
+                  University of Illinois Chicago</a
+                >
               </li>
               <li>
-                <a href="#" class="link">Recommended Budget Template</a>
+                <a
+                  href="https://research.uic.edu/sponsoredprograms/proposals/proposal-resources/"
+                  class="link"
+                  >Proposal Resources | Office of the Vice Chancellor for Research | University of
+                  Illinois Chicago</a
+                >
               </li>
               <li>
-                <a href="#" class="link">Cost Sharing Tools</a>
+                <a
+                  href="https://research.uic.edu/compliance/clinical-trials/externally-sponsored-clinical-trials/"
+                  class="link"
+                  >Externally Sponsored Clinical Trials | Office of the Vice Chancellor for Research
+                  | University of Illinois Chicago</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://research.uic.edu/compliance/human-subjects-irbs/general-information/irb-fees/"
+                  class="link"
+                  >IRB Fees | Office of the Vice Chancellor for Research | University of Illinois
+                  Chicago</a
+                >
               </li>
             </ul>
           </v-card-text>

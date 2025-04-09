@@ -1,0 +1,150 @@
+{
+  "_id": {
+    "$oid": "67dc529378031c194579f9e2"
+  },
+  "grantManagers": {
+    "Academic Internal Medicine and Geriatrics (AIM)": [],
+    "Cardiology": [
+      {
+        "email": "TestcardioGM@mail.com",
+        "enabled": true
+      }
+    ],
+    "Endocrinology, Diabetes and Metabolism": [],
+    "Gastroenterology and Hepatology": [],
+    "Hematology and Oncology": [],
+    "Infectious Diseases": [],
+    "Nephrology": [],
+    "Pulmonary, Critical Care, Sleep and Allergy": [],
+    "Rheumatology": [],
+    "Correctional Medicine": [],
+    "Medicaid Advisory Unit": []
+  },
+  "PIs": {
+    "Academic Internal Medicine and Geriatrics (AIM)": {
+      "New PI": {
+        "email": [
+          {
+            "email": "TestPI1@mail.com",
+            "enabled": true
+          }
+        ],
+        "Co-PI": [
+          {
+            "email": "TestCoPI1@mail.com",
+            "enabled": true
+          }
+        ],
+        "Team-members": [
+          {
+            "email": "TestTeam1@mail.com",
+            "enabled": true
+          }
+        ]
+      },
+      "New PI 1": {
+        "email": [
+          {
+            "email": "testpi2@mail.com",
+            "enabled": true
+          }
+        ],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Cardiology": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Endocrinology, Diabetes and Metabolism": {
+      "New PI": {
+        "email": [
+          {
+            "email": "pi@example.com",
+            "enabled": true
+          }
+        ],
+        "Co-PI": [
+          {
+            "email": "test.copi@mail.com",
+            "enabled": true
+          }
+        ],
+        "Team-members": []
+      }
+    },
+    "Gastroenterology and Hepatology": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Hematology and Oncology": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Infectious Diseases": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Nephrology": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Pulmonary, Critical Care, Sleep and Allergy": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Rheumatology": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Correctional Medicine": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    },
+    "Medicaid Advisory Unit": {
+      "New PI": {
+        "email": [],
+        "Co-PI": [],
+        "Team-members": []
+      }
+    }
+  },
+  "grantAdmins": [
+    {
+      "email": "vnand@uic.ed",
+      "enabled": true
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-20T17:38:27.257Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-06T19:25:15.674Z"
+  },
+  "__v": 5
+}

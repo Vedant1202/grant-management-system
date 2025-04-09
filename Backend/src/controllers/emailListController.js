@@ -82,3 +82,125 @@ exports.saveEmailLists = async (req, res) => {
     res.status(500).json({ error: 'Failed to save email lists' })
   }
 }
+
+// GET /api/email-lists/pi-team?email=<pi_email>
+exports.getPITeam = async (req, res) => {
+  const { email } = req.query
+
+  console.log('🔍 Searching for PI with email:', `"${email}"`)
+
+  try {
+    const emailListDoc = await EmailList.findOne()
+
+    if (!emailListDoc) {
+      return res.status(404).json({ message: 'Email list document not found.' })
+    }
+
+    // Convert outer Map
+    const PIs = Object.fromEntries(emailListDoc.PIs || [])
+    console.log(`📦 Total Divisions in PIs: ${Object.keys(PIs).length}`)
+
+    for (const division of Object.keys(PIs)) {
+      console.log(`📁 Searching division: ${division}`)
+
+      // Convert inner Map for each division
+      const divisionPIs = Object.fromEntries(PIs[division])
+
+      for (const piName of Object.keys(divisionPIs)) {
+        const piEntry = divisionPIs[piName]
+        console.log(`👤 Checking PI: ${piName}`)
+
+        if (!piEntry || typeof piEntry !== 'object') {
+          console.log(`⚠️ Skipping PI "${piName}" – invalid structure.`)
+          continue
+        }
+
+        const emailList = Array.isArray(piEntry.email) ? piEntry.email : []
+        console.log(`📨 Emails for "${piName}":`, emailList.map((e) => e.email).join(', '))
+
+        const match = emailList.find(
+          (entry) => entry.email?.toLowerCase().trim() === email.toLowerCase().trim()
+        )
+
+        if (match) {
+          console.log(`✅ Match found! PI: "${piName}" in Division: "${division}"`)
+          return res.json({
+            division,
+            piName,
+            coPIs: piEntry['Co-PI'] || [],
+            teamMembers: piEntry['Team-members'] || [],
+          })
+        }
+      }
+    }
+
+    console.log('❌ No match found. PI not in database.')
+    return res.status(404).json({ message: 'PI not found.' })
+  } catch (err) {
+    console.error('🔥 Error fetching PI team:', err)
+    return res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// PUT /api/email-lists/pi-team
+exports.savePITeam = async (req, res) => {
+  const { email, coPIs, teamMembers } = req.body
+
+  console.log('💾 Attempting to save team for email:', `"${email}"`)
+
+  try {
+    const emailListDoc = await EmailList.findOne()
+
+    if (!emailListDoc) {
+      console.log('❌ Email list document not found.')
+      return res.status(404).json({ message: 'Email list document not found.' })
+    }
+
+    const PIs = emailListDoc.PIs
+
+    if (!PIs || !(PIs instanceof Map)) {
+      console.log('❌ PIs is not a Map.')
+      return res.status(500).json({ message: 'Invalid PI structure.' })
+    }
+
+    const formatList = (list) =>
+      list.map((entry) => ({
+        email: entry.email?.trim().toLowerCase(),
+        enabled: true,
+      }))
+
+    for (const [division, piMap] of PIs.entries()) {
+      console.log(`📁 Searching division: ${division}`)
+
+      if (!(piMap instanceof Map)) continue
+
+      for (const [piName, piEntry] of piMap.entries()) {
+        console.log(`👤 Checking PI: ${piName}`)
+
+        const emailList = Array.isArray(piEntry?.email) ? piEntry.email : []
+
+        const match = emailList.find(
+          (entry) => entry.email?.toLowerCase().trim() === email.toLowerCase().trim()
+        )
+
+        if (match) {
+          console.log(`✅ Found PI. Updating "${piName}" in "${division}"`)
+
+          piEntry['Co-PI'] = Array.isArray(coPIs) ? formatList(coPIs) : []
+          piEntry['Team-members'] = Array.isArray(teamMembers) ? formatList(teamMembers) : []
+
+          emailListDoc.markModified(`PIs.${division}.${piName}`)
+          await emailListDoc.save()
+
+          return res.json({ message: 'Team updated successfully.' })
+        }
+      }
+    }
+
+    console.log('❌ No match found — PI not found.')
+    return res.status(404).json({ message: 'PI not found.' })
+  } catch (err) {
+    console.error('🔥 Error saving PI team:', err)
+    return res.status(500).json({ message: 'Server error' })
+  }
+}

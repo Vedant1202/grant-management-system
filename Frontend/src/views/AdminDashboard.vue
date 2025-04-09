@@ -17,6 +17,15 @@
       dense
       class="elevation-1 label-status"
     >
+      <template #item.piDivision="{ item }">
+        {{ formatDivision(item.piDivision) }}
+      </template>
+
+      <!-- Sponsor Due Date Column -->
+      <template #item.sponsorDeadlineDate="{ item }">
+        {{ formatDate(item.sponsorDeadlineDate) }}
+      </template>
+
       <!-- Status Column -->
       <template #item.status="{ item }">
         <v-chip
@@ -50,10 +59,11 @@ export default {
       search: '', // Search query
       proposals: [], // Store fetched proposals
       headers: [
+        { title: 'Grant Title', value: 'projectTitle' },
         { title: 'PI Last Name', value: 'piLastName' },
         { title: 'PI First Name', value: 'piFirstName' },
-        { title: 'Division', value: 'division' },
-        { title: 'Sponsor Due Date', value: 'sponsorDueDate' },
+        { title: 'Division', value: 'piDivision' },
+        { title: 'Sponsor Due Date', value: 'sponsorDeadlineDate' },
         { title: 'Status', value: 'status', sortable: false },
         { title: 'Actions', value: 'actions', sortable: false }, // Explicit Actions column
       ],
@@ -79,6 +89,30 @@ export default {
   methods: {
     viewProposal(proposal) {
       this.$router.push({ name: 'GrantView', params: { id: proposal.id } })
+    },
+    formatDate(dateStr) {
+      if (!dateStr) return '—'
+      const date = new Date(dateStr)
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    },
+    formatDivision(raw) {
+      const divisionCodeMap = {
+        586003: 'Cardiology (586003)',
+        586004: 'GI/Hepatology (586004)',
+        586006: 'AIM (586006)',
+        586008: 'Hem/Onc (586008)',
+        586009: 'Infectious Diseases / Pulmonary (586009)', // Could also be Pulmonary—let's disambiguate if needed
+        586010: 'Nephrology (586010)',
+        586012: 'Rheumatology (586012)',
+        586015: 'Endocrinology (586015)',
+        586020: 'Institute for Minority Health Research (IMHR) (586020)',
+        586030: 'Center for Dissemination & Implementation Science (CDIS) (586030)',
+      }
+      return divisionCodeMap[raw] || raw || '—'
     },
     async fetchAdminProposals() {
       try {

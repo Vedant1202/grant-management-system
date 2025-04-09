@@ -1,77 +1,70 @@
 <template>
   <v-container>
-    <v-card>
-      <!-- Title and Search Bar Row -->
-      <v-row align="center" class="px-4 py-3">
-        <!-- Title -->
-        <v-col cols="6">
-          <v-card-title class="text-h6">My grants</v-card-title>
-        </v-col>
+    <h1>My Grant Proposals</h1>
 
-        <!-- Search Bar -->
-        <v-col cols="4" class="text-right">
-          <v-text-field v-model="search" label="Search grants" outlined dense clearable>
-            <template v-slot:append-inner>
-              <v-icon icon="mdi-magnify" />
-            </template>
-          </v-text-field>
-        </v-col>
-      </v-row>
+    <!-- Search Input -->
+    <v-text-field
+      v-model="search"
+      label="Search Proposals"
+      append-icon="mdi-magnify"
+      outlined
+      dense
+      class="mb-4"
+    ></v-text-field>
 
-      <!-- Data Table -->
-      <v-data-table :headers="headers" :items="filteredGrants" class="elevation-1" dense>
-        <template #item.name="{ item }">
-          {{ item.proposedTitle || item.projectTitle || 'Untitled Grant' }}
-        </template>
-        <template #item.status="{ item }">
-          <v-chip
-            class="label-status"
-            :color="
-              item.status === 'accepted' ||
-              item.status === 'Accepted' ||
-              item.status === 'accepted - pending tasklist and timeline'
-                ? 'success'
-                : item.status === 'pending'
-                  ? 'warning'
-                  : 'error'
-            "
-            dark
-          >
-            {{ item.status }}
-          </v-chip>
-        </template>
-        <!-- <template #item.completionStatus="{ item }">
-          <span
-            :class="{
-              'green--text': item.completionStatus === 'Completed',
-              'orange--text': item.completionStatus === 'In progress',
-            }"
-          >
-            {{ item.completionStatus }}
-          </span>
-        </template> -->
-        <template #item.actions="{ item }">
-          <v-btn color="primary" @click="viewGrant(item.id)">View</v-btn>
-        </template>
-      </v-data-table>
-    </v-card>
+    <!-- Proposals Table -->
+    <v-data-table :items="filteredGrants" :headers="headers" dense class="elevation-1 label-status">
+      <template #item.piDivision="{ item }">
+        {{ formatDivision(item.piDivision) }}
+      </template>
+
+      <!-- Sponsor Due Date Column -->
+      <template #item.sponsorDeadlineDate="{ item }">
+        {{ formatDate(item.sponsorDeadlineDate) }}
+      </template>
+
+      <!-- Status Column -->
+      <template #item.status="{ item }">
+        <v-chip
+          class="label-status"
+          :color="
+            item.status === 'accepted' || item.status === 'accepted - pending tasklist and timeline'
+              ? 'success'
+              : item.status === 'pending'
+                ? 'warning'
+                : 'error'
+          "
+          dark
+        >
+          {{ item.status }}
+        </v-chip>
+      </template>
+
+      <!-- Actions Column -->
+      <template #item.actions="{ item }">
+        <v-btn color="primary" @click="viewGrant(item.id)">View</v-btn>
+      </template>
+    </v-data-table>
   </v-container>
 </template>
 
 <script>
-import { useGrantProposalsStore } from '@/stores/grantProposals'
 import { useUserStore } from '@/stores/user'
 import { API_BASE_URL } from '@/config/config'
 
 export default {
   data() {
     return {
-      search: '', // Search query input by user
-      grants: [], // Store fetched grants
+      search: '',
+      grants: [],
       headers: [
-        { text: 'Grant', value: 'name' }, // Table column header for Grant name
-        { text: 'Status', value: 'status' }, // Table column header for Grant status
-        { text: 'Actions', value: 'actions', sortable: false }, // Actions column
+        { title: 'Grant Title', value: 'projectTitle' },
+        { title: 'PI Last Name', value: 'piLastName' },
+        { title: 'PI First Name', value: 'piFirstName' },
+        { title: 'Division', value: 'piDivision' },
+        { title: 'Sponsor Due Date', value: 'sponsorDeadlineDate' },
+        { title: 'Status', value: 'status', sortable: false },
+        { title: 'Actions', value: 'actions', sortable: false },
       ],
     }
   },
@@ -79,13 +72,12 @@ export default {
     filteredGrants() {
       const query = this.search.toLowerCase()
       return this.grants
-        .filter((grant) => {
-          const grantProposalTitle = grant.proposedTitle || grant.projectTitle
-          return (
-            (grantProposalTitle || '').toLowerCase().includes(query) ||
-            (grant.status || '').toLowerCase().includes(query)
-          )
-        })
+        .filter(
+          (grant) =>
+            (grant.piLastName || '').toLowerCase().includes(query) ||
+            (grant.piFirstName || '').toLowerCase().includes(query) ||
+            (grant.piDivision || '').toLowerCase().includes(query),
+        )
         .reverse()
     },
   },
@@ -93,60 +85,50 @@ export default {
     viewGrant(id) {
       this.$router.push({ name: 'GrantView', params: { id } })
     },
+    formatDate(dateStr) {
+      if (!dateStr) return '—'
+      const date = new Date(dateStr)
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    },
+    formatDivision(raw) {
+      const divisionCodeMap = {
+        586003: 'Cardiology (586003)',
+        586004: 'GI/Hepatology (586004)',
+        586006: 'AIM (586006)',
+        586008: 'Hem/Onc (586008)',
+        586009: 'Infectious Diseases / Pulmonary (586009)', // Could also be Pulmonary—let's disambiguate if needed
+        586010: 'Nephrology (586010)',
+        586012: 'Rheumatology (586012)',
+        586015: 'Endocrinology (586015)',
+        586020: 'Institute for Minority Health Research (IMHR) (586020)',
+        586030: 'Center for Dissemination & Implementation Science (CDIS) (586030)',
+      }
+      return divisionCodeMap[raw] || raw || '—'
+    },
     async fetchUserGrants() {
       try {
         const userStore = useUserStore()
-        const userEmail = userStore.userEmail // ✅ Now using the getter
+        const userEmail = userStore.userEmail
         const response = await fetch(`${API_BASE_URL}/grants?piEmail=${userEmail}`)
-        const grants = await response.json()
-        grants.forEach((grant) => {
-          grant.id = grant._id
-        })
-        this.grants = grants
-      } catch (error) {
-        console.error('Error fetching user grants:', error)
+        const data = await response.json()
+        data.forEach((grant) => (grant.id = grant._id))
+        this.grants = data
+      } catch (err) {
+        console.error('Error fetching PI grants:', err)
       }
     },
   },
   async mounted() {
     await this.fetchUserGrants()
   },
-  watch: {
-    'userStore.userEmail': {
-      immediate: true,
-      handler(newEmail) {
-        if (newEmail) {
-          this.fetchUserGrants()
-        }
-      },
-    },
-    // '$route.path': {
-    //   immediate: true, // Run this immediately when component is created
-    //   handler(newPath) {
-    //     if (newPath === '/proposals') {
-    //       this.fetchUserGrants() // Fetch proposals again
-    //     }
-    //   },
-    // },
-  },
 }
 </script>
 
 <style scoped>
-.v-card {
-  margin-top: 20px;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.green--text {
-  color: #4caf50; /* Green for completed */
-}
-
-.orange--text {
-  color: #fb8c00; /* Orange for in progress */
-}
-
 .label-status {
   text-transform: capitalize !important;
 }

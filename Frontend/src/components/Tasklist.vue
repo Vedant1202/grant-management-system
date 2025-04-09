@@ -304,10 +304,12 @@ export default {
     setTableHeaders(tasklist) {
       if (!tasklist.length) return
 
-      this.headers = Object.keys(tasklist[0]).map((key) => ({
-        title: key.replace(/([A-Z])/g, ' $1').trim(),
-        value: key,
-      }))
+      this.headers = Object.keys(tasklist[0])
+        .filter((key) => key !== 'id') // <-- 🚫 Exclude 'id' from table headers
+        .map((key) => ({
+          title: key.replace(/([A-Z])/g, ' $1').trim(),
+          value: key,
+        }))
 
       // ✅ Ensure checkboxes and actions columns are always present
       this.headers.unshift({ title: 'Done?', value: 'completed', sortable: false })

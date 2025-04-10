@@ -7,6 +7,8 @@ const {
   deleteGrant,
   updateGrantStatus,
   getPendingGrants,
+  getGrantsByDivision,
+  getPendingGrantsByDivision,
   updateAdditionalData, // ✅ New Controller Function
   getAdditionalData, // ✅ New Controller Function
 } = require('../controllers/grantController')
@@ -21,6 +23,8 @@ router.get('/:id', getGrantById) // Get a specific grant
 router.put('/:id', updateGrant) // Update a grant
 router.delete('/:id', deleteGrant) // Delete a grant
 router.patch('/:id/status', updateGrantStatus) // Update grant status (Accept/Reject)
+router.get('/department/:divisionId', getGrantsByDivision)
+router.get('/pending/department/:divisionId', getPendingGrantsByDivision)
 
 // ✅ New Routes for additionalData
 router.patch('/:id/additionalData', updateAdditionalData) // Save timeline & template

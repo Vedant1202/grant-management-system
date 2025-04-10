@@ -5,6 +5,9 @@
       <v-col cols="8">
         <!-- Info Section -->
         <v-card class="info-section mb-6">
+          <v-btn color="secondary" variant="outlined" class="mr-4" @click="fillWithMockData">
+            Fill with Mock Data (Test only)
+          </v-btn>
           <v-card-title class="headline primary--text"> Pre-Award Support </v-card-title>
           <v-card-text>
             Please complete this intake form to request Pre-award Proposal Development to ensure a
@@ -20,7 +23,7 @@
         <v-card id="intent-form">
           <v-card-title>Department of Medicine Grant Intake Form</v-card-title>
           <v-card-text>
-            <v-form ref="form" v-model="isFormValid">
+            <v-form ref="form" v-model="isFormValid" lazy-validation>
               <!-- PI Information -->
               <v-text-field
                 v-model="formData.piFirstName"
@@ -674,14 +677,43 @@ export default {
       today.setHours(0, 0, 0, 0) // Remove time from comparison
       return new Date(date) >= today
     },
+    fillWithMockData() {
+      this.formData = {
+        piFirstName: 'Alice',
+        piLastName: 'Johnson',
+        piEmail: 'alice.johnson@uic.edu',
+        piDivision: 'Cardiology',
+        sponsorDeadlineDate: new Date(),
+        sponsorDeadlineTime: '17:00',
+        proposalType: 'Research',
+        fundingAgency: 'NIH',
+        isSubaward: 'No',
+        primeInstitution: '',
+        primeInstitutionContact: '',
+        primeInstitutionContactEmail: '',
+        submissionBy: 'Central Office',
+        submissionType: 'New',
+        fundingOpportunity: 'R01-Grant.com',
+        temporaryAppId: 'TEMP-1234',
+        activityType: 'Clinical Trial',
+        isClinicalTrial: 'No',
+        consultClinicalTrials: 'No',
+        consultDOMCTU: 'No',
+        projectStartDate: new Date(),
+        projectEndDate: new Date(),
+        projectTitle: 'Exploring Heart Health',
+        keyPersonnel: [{ name: 'Dr. Bob Smith', role: 'Co-PI', email: 'bob.smith@uic.edu' }],
+        hasSubcontracts: 'No',
+        subcontracts: [],
+        additionalRequirements: [],
+        hasConflictOfInterest: 'No',
+      }
+    },
     submitForm() {
       console.log('Form Data:', this.formData)
-      // Reset the form after submission
+
       if (this.$refs.form.validate()) {
         const store = useGrantProposalsStore()
-
-        // Add the form data to the centralized store
-        // store.addProposal({ ...this.formData }) ## Frontend only
 
         fetch(`${API_BASE_URL}/grants`, {
           method: 'POST',
@@ -690,49 +722,60 @@ export default {
           },
           body: JSON.stringify(this.formData),
         })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('Success:', data)
-            alert('Grant proposal submitted successfully!')
+          .then(async (response) => {
+            const data = await response.json()
+
+            if (!response.ok) {
+              this.closeDialog()
+              // Smart error detection
+              if (data.error && data.error.includes('validation failed')) {
+                throw new Error('Please fill in all required fields before submitting.')
+              }
+              throw new Error(data.error || 'Something went wrong. Please try again.')
+            }
+
+            // ✅ Success block — only reached if response.ok
+            console.log('✅ Grant created:', data)
+            alert('Intent to submit form was submitted successfully!')
+
+            // Reset form only after success
+            this.formData = {
+              piFirstName: '',
+              piLastName: '',
+              piEmail: '',
+              piDivision: null,
+              sponsorDeadlineDate: new Date(),
+              sponsorDeadlineTime: '',
+              proposalType: '',
+              fundingAgency: '',
+              isSubaward: '',
+              primeInstitution: '',
+              primeInstitutionContact: '',
+              primeInstitutionContactEmail: '',
+              submissionBy: '',
+              submissionType: '',
+              fundingOpportunity: '',
+              temporaryAppId: '',
+              activityType: '',
+              isClinicalTrial: '',
+              consultClinicalTrials: '',
+              consultDOMCTU: '',
+              projectStartDate: '',
+              projectEndDate: '',
+              projectTitle: '',
+              keyPersonnel: [],
+              hasSubcontracts: '',
+              subcontracts: [],
+              additionalRequirements: [],
+              hasConflictOfInterest: null,
+            }
+
             this.$router.push('/new-grant-proposal-requests')
           })
           .catch((error) => {
-            console.error('Error:', error)
-            alert('There was an issue submitting your proposal.')
+            console.error('❌ Error submitting grant:', error)
+            alert(`Submission failed: ${error.message}`)
           })
-        this.formData = {
-          piFirstName: '',
-          piLastName: '',
-          piEmail: '',
-          piDivision: null,
-          sponsorDeadlineDate: new Date(),
-          sponsorDeadlineTime: '',
-          proposalType: '',
-          fundingAgency: '',
-          isSubaward: '',
-          primeInstitution: '',
-          primeInstitutionContact: '',
-          primeInstitutionContactEmail: '',
-          submissionBy: '',
-          submissionType: '',
-          fundingOpportunity: '',
-          temporaryAppId: '',
-          activityType: '',
-          isClinicalTrial: '',
-          consultClinicalTrials: '',
-          consultDOMCTU: '',
-          projectStartDate: '',
-          projectEndDate: '',
-          projectTitle: '',
-          keyPersonnel: [],
-          hasSubcontracts: '',
-          subcontracts: [],
-          additionalRequirements: [],
-          hasConflictOfInterest: null,
-        }
-        alert('Intent to submit form was submitted successfully!')
-        // Navigate to the "New Grant Proposal Requests" page (optional)
-        this.$router.push('/new-grant-proposal-requests')
       }
     },
     allowedDates(date) {

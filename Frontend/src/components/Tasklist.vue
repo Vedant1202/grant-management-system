@@ -157,7 +157,13 @@
     </v-data-table>
     <v-row class="mt-4">
       <v-col>
-        <v-btn color="success" :disabled="!hasChanges" @click="saveChanges"> Save Changes </v-btn>
+        <v-btn
+          color="success"
+          :disabled="!hasChanges || !grant.additionalData.ackPi"
+          @click="saveChanges"
+        >
+          Save Changes
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -219,13 +225,13 @@ export default {
 
       // Predefined template names
       templateNames: [
-        'Default Tasklist',
         'NIH R Tasklist',
         'NIH K Tasklist',
         'NIH T Tasklist',
         'NIH F Tasklist',
         'DOD Tasklist',
         'HRSA Tasklist',
+        'Custom Tasklist',
       ],
 
       selectedTemplate: null, // Selected template
@@ -381,7 +387,7 @@ export default {
 
       let selectedTasklist = []
       switch (this.selectedTemplate) {
-        case 'Default Tasklist':
+        case 'Custom Tasklist':
           selectedTasklist = this.defaultTasklist
           break
         case 'NIH R Tasklist':

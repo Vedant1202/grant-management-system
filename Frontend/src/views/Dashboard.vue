@@ -76,6 +76,7 @@ export default {
           (grant) =>
             (grant.piLastName || '').toLowerCase().includes(query) ||
             (grant.piFirstName || '').toLowerCase().includes(query) ||
+            (grant.projectTitle || '').toLowerCase().includes(query) ||
             (grant.piDivision || '').toLowerCase().includes(query),
         )
         .reverse()

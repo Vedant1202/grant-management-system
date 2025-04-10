@@ -230,7 +230,13 @@
       </v-row>
       <v-row class="mt-4">
         <v-col>
-          <v-btn color="success" :disabled="!hasChanges" @click="saveChanges"> Save Changes </v-btn>
+          <v-btn
+            color="success"
+            :disabled="!hasChanges || !grant.additionalData.ackPi"
+            @click="saveChanges"
+          >
+            Save Changes
+          </v-btn>
         </v-col>
       </v-row>
     </v-card>

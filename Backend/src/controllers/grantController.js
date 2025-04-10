@@ -100,11 +100,52 @@ exports.getAllGrants = async (req, res) => {
   }
 }
 
+// Get grant proposals by division (for Grant Managers)
+exports.getGrantsByDivision = async (req, res) => {
+  try {
+    const { divisionId } = req.params
+
+    if (!divisionId) {
+      return res.status(400).json({ error: 'Division ID is required' })
+    }
+
+    // Use regex to match divisionId anywhere in the piDivision string
+    const grants = await Grant.find({
+      piDivision: { $regex: divisionId, $options: 'i' }, // case-insensitive match
+    })
+
+    res.status(200).json(grants)
+  } catch (err) {
+    console.error('❌ Error fetching grants by division:', err)
+    res.status(500).json({ error: err.message })
+  }
+}
+
 exports.getPendingGrants = async (req, res) => {
   try {
     const pendingGrants = await Grant.find({ status: 'pending' })
     res.status(200).json(pendingGrants)
   } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+exports.getPendingGrantsByDivision = async (req, res) => {
+  try {
+    const { divisionId } = req.params
+
+    if (!divisionId) {
+      return res.status(400).json({ error: 'Division ID is required' })
+    }
+
+    const grants = await Grant.find({
+      status: 'pending',
+      piDivision: { $regex: divisionId, $options: 'i' }, // fuzzy match
+    })
+
+    res.status(200).json(grants)
+  } catch (err) {
+    console.error('❌ Error fetching pending grants by division:', err)
     res.status(500).json({ error: err.message })
   }
 }

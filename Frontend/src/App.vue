@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="!(showLoginPage && !isLoggedIn)">
+  <v-app v-if="!(showLoginPage && isLoggedIn)">
     <!-- AppBar -->
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>{{ 'Grant Management System' }}</v-toolbar-title>
@@ -107,7 +107,7 @@
     </v-main>
   </v-app>
   <!-- Show HomeView if user is NOT logged in and `showLoginPage` is true -->
-  <HomeView v-else />
+  <HomeView v-else @login="handleLogin" />
 </template>
 
 <script setup>
@@ -119,6 +119,12 @@ import HomeView from '@/views/HomeView.vue'
 
 // Toggle switch to enforce login functionality
 const showLoginPage = ref(true) // Change this to `false` to always show the default pages
+
+const handleLogin = () => {
+  // Simulate login by setting a default user
+  userStore.setUser('pi@example.com', 'PI')
+  showLoginPage.value = false
+}
 
 // Check if user is logged in
 const isLoggedIn = computed(() => !!userStore.user.email)

@@ -3,9 +3,9 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const login = () => {
-  router.push('/login') // Redirect to UIC NetID authentication
-}
+// const login = () => {
+//   router.push('/login') // Redirect to UIC NetID authentication
+// }
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const login = () => {
         class="right-column d-flex flex-column align-center justify-center"
       >
         <h2 class="title">DOM Grant Proposal Management System</h2>
-        <v-btn class="login-btn" large @click="login"> Login with UIC NetID </v-btn>
+        <v-btn class="login-btn" large @click="$emit('login')"> Login with UIC NetID </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -38,7 +38,7 @@ const login = () => {
 <style scoped>
 /* Full-screen layout */
 .fill-height {
-  height: 100vh !important; /* Ensures full height */
+  height: 100vh !important;
   margin: 0;
   border: 0;
   padding: 0;

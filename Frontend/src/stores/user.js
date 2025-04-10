@@ -6,6 +6,7 @@ export const useUserStore = defineStore('user', {
     user: {
       email: 'pi@example.com', // Mock user email
       role: 'PI', // Mock role: 'Grant Admin', 'Grant Manager', 'PI', 'Proxy PI', 'Team Member'.
+      division: 'Cardiology',
     },
   }),
   getters: {

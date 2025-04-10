@@ -52,6 +52,7 @@
 <script>
 import { useGrantProposalsStore } from '@/stores/grantProposals'
 import { API_BASE_URL } from '@/config/config'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data() {
@@ -81,6 +82,7 @@ export default {
           (proposal) =>
             proposal.piLastName.toLowerCase().includes(query) ||
             proposal.piFirstName.toLowerCase().includes(query) ||
+            proposal.projectTitle.toLowerCase().includes(query) ||
             proposal.division.toLowerCase().includes(query),
         )
         .reverse() // Show latest first
@@ -114,11 +116,25 @@ export default {
       }
       return divisionCodeMap[raw] || raw || '—'
     },
-    async fetchAdminProposals() {
+    async fetchProposalsByRole() {
+      const userStore = useUserStore()
+      const { role, division } = userStore.user
+
       try {
-        const response = await fetch(`${API_BASE_URL}/grants`)
+        let response
+        if (role === 'Grant Manager' && division) {
+          // Call department-specific route
+          response = await fetch(`${API_BASE_URL}/grants/department/${division}`)
+        } else {
+          // Default route for Grant Admins, etc.
+          response = await fetch(`${API_BASE_URL}/grants`)
+        }
+
         const data = await response.json()
-        this.proposals = data.filter((proposal) => proposal.status !== 'pending') // Exclude pending
+
+        // Only show accepted/rejected
+        this.proposals = data.filter((proposal) => proposal.status !== 'pending')
+
         this.proposals.forEach((proposal) => {
           proposal.id = proposal._id
         })
@@ -132,7 +148,7 @@ export default {
       immediate: true,
       handler(newPath) {
         if (newPath === '/admin-dashboard') {
-          this.fetchAdminProposals()
+          this.fetchProposalsByRole()
         }
       },
     },

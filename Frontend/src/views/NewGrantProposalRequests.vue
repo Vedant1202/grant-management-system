@@ -39,6 +39,7 @@
 
 <script>
 import { API_BASE_URL } from '@/config/config'
+import { useUserStore } from '@/stores/user' // if not already imported
 
 const divisionCodeMap = {
   586003: 'Cardiology (586003)',
@@ -77,10 +78,8 @@ export default {
           (p) =>
             (p.piLastName || '').toLowerCase().includes(query) ||
             (p.piFirstName || '').toLowerCase().includes(query) ||
-            (p.division || '').toLowerCase().includes(query) ||
-            (p.sponsorDueDate || '').toLowerCase().includes(query) ||
-            (p.submissionType || '').toLowerCase().includes(query) ||
-            (p.grantMechanism || '').toLowerCase().includes(query),
+            (p.projectTitle || '').toLowerCase().includes(query) ||
+            (p.division || '').toLowerCase().includes(query),
         )
         .reverse()
     },
@@ -102,8 +101,20 @@ export default {
       })
     },
     async fetchPendingProposals() {
+      const userStore = useUserStore()
+      const { role, division } = userStore.user
+
       try {
-        const response = await fetch(`${API_BASE_URL}/grants/pending`)
+        let response
+
+        if (role === 'Grant Manager' && division) {
+          // Hit new backend route with division filter
+          response = await fetch(`${API_BASE_URL}/grants/pending/department/${division}`)
+        } else {
+          // Default for Grant Admin or others
+          response = await fetch(`${API_BASE_URL}/grants/pending`)
+        }
+
         const data = await response.json()
         data.forEach((p) => (p.id = p._id))
         this.proposals = data

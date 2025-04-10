@@ -2,7 +2,7 @@
   <v-app v-if="!(showLoginPage && isLoggedIn)">
     <!-- AppBar -->
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title>{{ 'Grant Management System' }}</v-toolbar-title>
+      <v-toolbar-title>{{ 'UIC DOM Grant Proposal Management System' }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <template v-slot:append>
         <!-- Notification Button -->

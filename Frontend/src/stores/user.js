@@ -4,7 +4,7 @@ import { rolePermissions } from '../rolePermissions'
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: {
-      email: 'pi@example.com', // Mock user email
+      email: 'vnand@uic.edu', // Mock user email
       role: 'PI', // Mock role: 'Grant Admin', 'Grant Manager', 'PI', 'Proxy PI', 'Team Member'.
       division: 'Cardiology',
     },

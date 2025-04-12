@@ -35,7 +35,7 @@
                 label="PI Last Name"
                 required
               ></v-text-field>
-              <v-text-field v-model="formData.piEmail" label="PI Email" required></v-text-field>
+              <v-text-field v-model="formData.piEmail" readonly label="PI Email" required></v-text-field>
               <v-select
                 v-model="formData.piDivision"
                 :items="[
@@ -588,6 +588,7 @@
 <script>
 import moment from 'moment'
 import { useGrantProposalsStore } from '@/stores/grantProposals'
+import { useUserStore } from '@/stores/user'
 import { API_BASE_URL } from '@/config/config'
 
 export default {
@@ -603,7 +604,7 @@ export default {
       formData: {
         piFirstName: '',
         piLastName: '',
-        piEmail: '',
+        piEmail: 'vnand@uic.edu',
         piDivision: null,
         sponsorDeadlineDate: new Date(),
         sponsorDeadlineTime: '',
@@ -632,6 +633,12 @@ export default {
       },
       formattedSponsorDeadline: '',
     }
+  },
+  computed: {
+    user() {
+      const userStore = useUserStore()
+      return userStore.user
+    },
   },
   methods: {
     updateFormattedProjectStartDate() {
@@ -681,7 +688,7 @@ export default {
       this.formData = {
         piFirstName: 'Alice',
         piLastName: 'Johnson',
-        piEmail: 'alice.johnson@uic.edu',
+        piEmail: this.user.email,
         piDivision: 'Cardiology',
         sponsorDeadlineDate: new Date(),
         sponsorDeadlineTime: '17:00',
@@ -742,7 +749,7 @@ export default {
             this.formData = {
               piFirstName: '',
               piLastName: '',
-              piEmail: '',
+              piEmail: this.user.email,
               piDivision: null,
               sponsorDeadlineDate: new Date(),
               sponsorDeadlineTime: '',
